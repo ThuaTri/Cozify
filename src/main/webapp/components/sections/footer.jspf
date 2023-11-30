@@ -1,0 +1,34 @@
+<%@page pageEncoding="UTF-8" %>
+<!-- Footer -->
+<div class="container-fluid bg-dark text-secondary pt-5">
+  <div class="row px-xl-5 pt-5">
+    <div class="col-lg-6 col-md-12 mb-5 pr-3 pr-xl-5">
+      <h5 class="text-secondary text-uppercase mb-4">About Cozify</h5>
+      <p class="mb-4">No dolore ipsum accusam no lorem. Invidunt sed clita kasd clita et et dolor sed dolor. Rebum
+        tempor no vero est magna amet no</p>
+      <p class="mb-2"><i class="ph-bold ph-map-pin text-primary mr-3"></i>123 Street, New York, USA</p>
+      <p class="mb-2"><i class="ph-bold ph-envelope-simple text-primary mr-3"></i>info@example.com</p>
+      <p class="mb-0"><i class="ph-bold ph-phone text-primary mr-3"></i>+012 345 67890</p>
+    </div>
+    <div class="col-lg-6 col-md-12">
+      <div class="row">
+        <h5 class="text-secondary text-uppercase mb-4">Follow Us</h5>
+        <div class="d-flex gap-2">
+          <a class="btn btn-outline-secondary btn-square mr-2 fs-5" href="#"><i
+              class="ph-bold ph-facebook-logo"></i></a>
+          <a class="btn btn-outline-secondary btn-square mr-2 fs-5" href="#"><i
+              class="ph-fill ph-linkedin-logo"></i></a>
+          <a class="btn btn-outline-secondary btn-square mr-2 fs-5" href="#"><i
+              class="ph-fill ph-instagram-logo"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row border-top mx-xl-5 py-4" style="border-color: rgba(256, 256, 256, .1) !important;">
+    <div class="px-xl-0">
+      <p class="mb-md-0 text-center text-md-left text-secondary">
+        &copy; Cozify. All Rights Reserved.
+      </p>
+    </div>
+  </div>
+</div>

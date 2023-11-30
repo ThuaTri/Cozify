@@ -1,0 +1,6 @@
+<%-- any content can be specified here e.g.: --%>
+<%@ page pageEncoding="UTF-8" %>
+<!-- JavaScripts -->
+<script src="${pageContext.request.contextPath}/resources/lib/popperjs/popper.min.js"></script>
+<script src="${pageContext.request.contextPath}/resources/lib/bootstrap-5.3.2/js/bootstrap.min.js"></script>
+<script src="${pageContext.request.contextPath}/components/elements/toast.js"></script>

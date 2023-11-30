@@ -1,0 +1,24 @@
+<%@page pageEncoding="UTF-8" %>
+<!-- Navigation-->
+<nav class="navbar navbar-expand-lg navbar-light sticky-top bg-light shadow-sm">
+  <div class="container-fluid px-5">
+    <a class="navbar-brand" href="/">Cozify</a>
+    <div class="flex-grow-1"></div>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span
+        class="navbar-toggler-icon"></span></button>
+    <div class="collapse navbar-collapse justify-content-end gap-2" id="navbarSupportedContent">
+      <a class="btn btn-outline-dark" href="cart">
+        <i class="ph-fill ph-shopping-cart-simple me-1"></i>
+        Cart
+        <span class="badge bg-dark text-white ms-1 rounded-pill">${sessionScope.cart.getNumberOfItems()}</span>
+      </a>
+      <button class="btn btn-outline-dark" type="submit">
+        Log in
+      </button>
+      <button class="btn btn-dark" type="submit">
+        Sign up
+      </button>
+    </div>
+  </div>
+</nav>
