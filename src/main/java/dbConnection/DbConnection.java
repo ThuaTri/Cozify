@@ -15,10 +15,10 @@ public class DbConnection {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             try {
                 conn = DriverManager.getConnection("jdbc:sqlserver://"
-                        + "LAPTOP-17J33K00\\SQLEXPRESS:1433;"
+                        + "localhost:1450;"
                         + "databaseName=cozify;"
                         + "user=sa;" // Username
-                        + "password=admin123;" // Password
+                        + "password=sa@123456;" // Password
                         + "encrypt=true;"
                         + "trustServerCertificate= true;");
             } catch (SQLException ex) {
