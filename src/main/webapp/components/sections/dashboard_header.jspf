@@ -1,0 +1,21 @@
+<%@page pageEncoding="UTF-8" %>
+<!--  Header Start -->
+<header class="app-header">
+  <nav class="navbar navbar-expand-lg navbar-light">
+    <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
+      <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
+        <li class="nav-item dropdown">
+          <button class="btn btn-outline-dark" data-bs-toggle="dropdown"
+                  aria-expanded="false" type="button">
+            <i class="ph-bold ph-user me-2"></i>
+            ${sessionScope.user.username}
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+            <li><a class="dropdown-item" href="/logout">Log out</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
+</header>
+<!--  Header End -->

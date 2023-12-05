@@ -29,6 +29,23 @@ public class UserDao extends GenericDao<User> {
     return list;
   }
 
+  public List<User> getAllByRole(String role) {
+    list = null;
+    String sql = "select * from [user] where role = ?";
+    try {
+      list = new ArrayList<>();
+      preparedStatement = connection.prepareStatement(sql);
+      preparedStatement.setString(1, role);
+      resultSet = preparedStatement.executeQuery();
+      while (resultSet.next()) {
+        list.add(getUserFromResultSetItem(resultSet));
+      }
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return list;
+  }
+
   @Override
   public User getById(int id) {
     String sql = "select * from [user] where user_id = ?";
@@ -106,5 +123,34 @@ public class UserDao extends GenericDao<User> {
       handleSQLException(e);
     }
     return result;
+  }
+
+  public boolean login(String email, String password) throws SQLException {
+    resultSet = null;
+    String sql = "select * from [user] where email = ? and [password] = ?";
+    try {
+      preparedStatement = connection.prepareStatement(sql);
+      preparedStatement.setString(1, email);
+      preparedStatement.setString(2, password);
+      resultSet = preparedStatement.executeQuery();
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return resultSet.next();
+  }
+
+  public User getUserByEmail(String email) {
+    String sql = "select * from [user] where email = ?";
+    try {
+      preparedStatement = connection.prepareStatement(sql);
+      preparedStatement.setString(1, email);
+      resultSet = preparedStatement.executeQuery();
+      if (resultSet.next()) {
+        return getUserFromResultSetItem(resultSet);
+      }
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return null;
   }
 }

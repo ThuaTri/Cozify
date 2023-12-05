@@ -7,7 +7,7 @@
   </jsp:include>
 </head>
 <body class="d-flex flex-column">
-<%@ include file="components/sections/storeComponents.jspf" %>
+<%@ include file="components/sections/store_components.jspf" %>
 
 <div class="container-fluid">
   <div class="row d-flex justify-content-center align-items-center h-100">
@@ -27,22 +27,25 @@
                 <div class="row mb-4 d-flex justify-content-between align-items-center">
                   <div class="col-md-2 col-lg-2 col-xl-2">
                     <img
-                        src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-shopping-carts/img5.webp"
-                        class="img-fluid rounded-3" alt="Cotton T-shirt">
+                        src="${pageContext.request.contextPath}/resources/media/img/clothes/${item.clothes.clothesId}"
+                        class="img-fluid rounded-3" alt="${item.clothes.clothesName}">
                   </div>
+
+                  <!-- Name and size -->
                   <div class="col-md-3 col-lg-3 col-xl-3">
-                    <h6 class="text-black mb-0">${item.clothes.clothesName}</h6>
-                    <label for="size">Size: </label>
-                    <select id="size" class="form-select" aria-label="Default select example"
-                            name="size-${item.clothesId}" onchange="changeSize(this)">
-                      <option value="XS" ${item.clothes.size == "XS" ? "selected" : ""}>XS</option>
-                      <option value="S" ${item.clothes.size == "S" ? "selected" : ""}>S</option>
-                      <option value="M" ${item.clothes.size == "M" ? "selected" : ""}>M</option>
-                      <option value="L" ${item.clothes.size == "L" ? "selected" : ""}>L</option>
-                      <option value="XL" ${item.clothes.size == "XL" ? "selected" : ""}>XL</option>
-                      <option value="XXL" ${item.clothes.size == "XXL" ? "selected" : ""}>XXL</option>
-                    </select>
+                    <h6 id="clothes-${item.clothes.clothesId}" class="text-black mb-0">${item.clothes.clothesName}</h6>
+                    <c:if test="${!(item.clothes.size == 'null')}">
+                      <label for="size">Size: </label>
+                      <select id="size" class="form-select" aria-label="Default select example"
+                              name="size-${item.clothesId}" onchange="changeSize(this)">
+                        <c:forEach items="${item.availableSizes}" var="size">
+                          <option value="${size}" ${item.clothes.size == size ? "selected" : ""}>${size}</option>
+                        </c:forEach>
+                      </select>
+                    </c:if>
                   </div>
+
+                  <!-- Quantity input -->
                   <div class="col-md-3 col-lg-3 col-xl-2 d-flex">
                     <button class="btn px-2"
                             onclick="decrement(this)">
@@ -59,6 +62,7 @@
                     </button>
                   </div>
 
+                  <!-- Price -->
                   <div class="col-md-3 col-lg-2 col-xl-2 offset-lg-1">
                     <c:if test="${item.clothes.discount > 0}">
                       <span class="text-muted text-decoration-line-through">$${item.clothes.price}</span>
@@ -66,6 +70,8 @@
                     <span class="fw-bolder fs-5">$<fmt:formatNumber
                         pattern="#,###.##">${item.clothes.price * (100 - item.clothes.discount) / 100}</fmt:formatNumber></span>
                   </div>
+
+                  <!-- Delete button -->
                   <div class="col-md-1 col-lg-1 col-xl-1 text-end">
                     <a href="cart/delete?id=${item.clothes.clothesId}" class="text-muted text-decoration-none"><i
                         class="ph-bold ph-x"></i></a>
@@ -118,7 +124,7 @@
             <h5>$<fmt:formatNumber pattern="#,###.##">${cart.total + shipping + tax}</fmt:formatNumber></h5>
           </div>
 
-          <a href="/checkout" class="btn btn-dark btn-block btn-lg">
+          <a href="/checkout" class="btn btn-dark btn-block btn-lg ${(empty cart || cart.getNumberOfItems() <= 0) ? "disabled" : ""}">
             Proceed to Checkout
           </a>
 
@@ -155,9 +161,14 @@
     let max = Number.parseInt(element.getAttribute("max"));
     if (element.value < max) {
       let xhr = new XMLHttpRequest();
+
       let quantity = Number.parseInt(element.value);
       let id = element.getAttribute("name").split("-")[1];
-      let url = "/cart/update?id=" + id + "&quantity=" + (quantity + 1);
+      let size = event.parentNode.parentNode.querySelector('select')
+          ? event.parentNode.parentNode.querySelector('select').value
+          : "";
+
+      let url = "/cart/update?id=" + id + "&quantity=" + (quantity + 1) + "&size=" + size;
       xhr.open('GET', url, true);
       xhr.send();
       xhr.onreadystatechange = () => {
@@ -175,7 +186,8 @@
       let xhr = new XMLHttpRequest();
       let quantity = Number.parseInt(element.value);
       let id = element.getAttribute("name").split("-")[1];
-      let url = "/cart/update?id=" + id + "&quantity=" + (quantity - 1);
+      let size = event.parentNode.parentNode.querySelector('select').value;
+      let url = "/cart/update?id=" + id + "&quantity=" + (quantity - 1) + "&size=" + size;
       xhr.open('GET', url, true);
       xhr.send();
       xhr.onreadystatechange = () => {
@@ -189,9 +201,12 @@
   function changeSize(event) {
     let element = event.parentNode.querySelector('select');
     let xhr = new XMLHttpRequest();
-    let size = element.value;
+
     let id = element.getAttribute("name").split("-")[1];
-    let url = "/cart/update?id=" + id + "&size=" + size;
+    let size = element.value;
+    let quantity = Number.parseInt(event.parentNode.parentNode.querySelector('input[type=number]').value);
+
+    let url = "/cart/update?id=" + id + "&size=" + size + "&quantity=" + quantity;
     xhr.open('GET', url, true);
     xhr.send();
     xhr.onreadystatechange = () => {

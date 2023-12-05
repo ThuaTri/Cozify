@@ -7,7 +7,7 @@
   </jsp:include>
 </head>
 <body>
-<%@ include file="components/sections/storeComponents.jspf" %>
+<%@ include file="components/sections/store_components.jspf" %>
 <div class="container">
   <main>
     <div class="py-3 text-center">

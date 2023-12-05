@@ -3,12 +3,14 @@ USE [master];
 GO
 
 -- Delete database if it exists
-IF EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = 'cozify')
-BEGIN
-	ALTER DATABASE cozify SET OFFLINE WITH ROLLBACK IMMEDIATE;
-	ALTER DATABASE cozify SET ONLINE;
-	DROP DATABASE cozify;
-END;
+IF EXISTS (SELECT name
+           FROM master.dbo.sysdatabases
+           WHERE name = 'cozify')
+    BEGIN
+        ALTER DATABASE cozify SET OFFLINE WITH ROLLBACK IMMEDIATE;
+        ALTER DATABASE cozify SET ONLINE;
+        DROP DATABASE cozify;
+    END;
 GO
 
 -- Create the new database
@@ -19,68 +21,74 @@ USE cozify;
 GO
 
 -- Create the Users table
-CREATE TABLE [user] (
-    [user_id] INT IDENTITY PRIMARY KEY NOT NULL,
-    username NVARCHAR(50) NOT NULL,
-    [password] CHAR(32) NOT NULL,
-    email NVARCHAR(255) NOT NULL,
-    [role] VARCHAR(50) NOT NULL, -- 'admin' or 'user' or 'staff'
+CREATE TABLE [user]
+(
+    [user_id]    INT IDENTITY PRIMARY KEY NOT NULL,
+    username     NVARCHAR(50)             NOT NULL,
+    [password]   CHAR(32)                 NOT NULL,
+    email        NVARCHAR(255)            NOT NULL,
+    [role]       VARCHAR(50)              NOT NULL, -- 'admin' or 'user' or 'staff'
     -- These attributes are not mandatory upon account creation
-    first_name NVARCHAR(50),
-    last_name NVARCHAR(50),
-    phone_number VARCHAR(13), -- excluding country code, most countries' phone number length do not exceed 13
-    address NVARCHAR(255)
+    first_name   NVARCHAR(50),
+    last_name    NVARCHAR(50),
+    phone_number VARCHAR(13),                       -- excluding country code, most countries' phone number length do not exceed 13
+    address      NVARCHAR(255)
 );
 
 -- Create the Categories table
-CREATE TABLE category (
-    category_id INT IDENTITY PRIMARY KEY NOT NULL,
-    category_name NVARCHAR(100) NOT NULL
+CREATE TABLE category
+(
+    category_id   INT IDENTITY PRIMARY KEY NOT NULL,
+    category_name NVARCHAR(100)            NOT NULL,
+    is_hidden     BIT                      NOT NULL
 );
 
 -- Create the Clothes table
-CREATE TABLE clothes (
-    clothes_id INT IDENTITY PRIMARY KEY NOT NULL,
-    clothes_name NVARCHAR(255) NOT NULL,
-    price DECIMAL(10, 2) NOT NULL,
-    discount TINYINT NOT NULL,
-    rating TINYINT NOT NULL,
-    stock_quantity INT NOT NULL,
-    size VARCHAR(10), -- Hats and some accessories do not have sizes
-    is_hidden BIT NOT NULL,
-    category_id INT NOT NULL REFERENCES category(category_id)
+CREATE TABLE clothes
+(
+    clothes_id     INT IDENTITY PRIMARY KEY NOT NULL,
+    clothes_name   NVARCHAR(255)            NOT NULL,
+    price          DECIMAL(10, 2)           NOT NULL,
+    discount       TINYINT                  NOT NULL,
+    rating         TINYINT                  NOT NULL,
+    stock_quantity INT                      NOT NULL,
+    size           VARCHAR(10), -- Hats and some accessories do not have sizes
+    is_hidden      BIT                      NOT NULL,
+    category_id    INT                      NOT NULL REFERENCES category (category_id)
 );
 
 -- Create the Orders table
-CREATE TABLE [order] (
-    order_id INT IDENTITY PRIMARY KEY NOT NULL,
-    order_time DATETIME DEFAULT GETDATE(),
-    status NVARCHAR(50) DEFAULT 'pending', -- pending, packaging, delivering, delivered, cancelled
-    payment_method NVARCHAR(50) NOT NULL, -- cod
-    first_name NVARCHAR(50) NOT NULL,
-    last_name NVARCHAR(50) NOT NULL,
-    [address] NVARCHAR(255) NOT NULL,
-    phone_number CHAR(11) NOT NULL,
-    email NVARCHAR(255) NOT NULL,
-    total DECIMAL(10, 2) NOT NULL,
-    note NVARCHAR(1000)
+CREATE TABLE [order]
+(
+    order_id       INT IDENTITY PRIMARY KEY NOT NULL,
+    order_time     DATETIME     DEFAULT GETDATE(),
+    status         NVARCHAR(50) DEFAULT 'pending',    -- pending, packaging, delivering, delivered, cancelled
+    payment_method NVARCHAR(50)             NOT NULL, -- cod
+    first_name     NVARCHAR(50)             NOT NULL,
+    last_name      NVARCHAR(50)             NOT NULL,
+    [address]      NVARCHAR(255)            NOT NULL,
+    phone_number   CHAR(11)                 NOT NULL,
+    email          NVARCHAR(255)            NOT NULL,
+    total          DECIMAL(10, 2)           NOT NULL,
+    note           NVARCHAR(1000)
 );
 
 -- Create the OrderItems table
-CREATE TABLE order_item (
+CREATE TABLE order_item
+(
     order_item_id INT IDENTITY PRIMARY KEY NOT NULL,
-    order_id INT NOT NULL REFERENCES [order](order_id),
-    clothes_id INT NOT NULL REFERENCES clothes(clothes_id),
-    quantity INT,
-    subtotal DECIMAL(10, 2)
+    order_id      INT                      NOT NULL REFERENCES [order] (order_id),
+    clothes_id    INT                      NOT NULL REFERENCES clothes (clothes_id),
+    quantity      INT,
+    subtotal      DECIMAL(10, 2)
 );
 GO
 
 -- Soft delete (hide) clothes instead of permanently remove it (hard delete)
 CREATE TRIGGER tr_HideClothes
-ON clothes
-INSTEAD OF DELETE
-AS
+    ON clothes
+    INSTEAD OF DELETE
+    AS
 BEGIN
     UPDATE clothes
     SET is_hidden = 1
@@ -88,24 +96,64 @@ BEGIN
 END;
 GO
 
+-- Soft delete (hide) category instead of permanently remove it (hard delete)
+-- Also hides all clothes of that category
+CREATE TRIGGER tr_HideCategory
+    ON category
+    INSTEAD OF DELETE
+    AS
+BEGIN
+    UPDATE category
+    SET is_hidden = 1
+    WHERE category_id IN (SELECT category_id FROM deleted);
+
+    UPDATE clothes
+    SET is_hidden = 1
+    WHERE category_id IN (SELECT category_id FROM deleted)
+END;
+GO
+
+-- Upon enabling category's state, also do the same to Clothes of the same category
+CREATE TRIGGER tr_UpdateClothesIsHidden
+    ON category
+    AFTER UPDATE
+    AS
+BEGIN
+    IF UPDATE(is_hidden)
+        BEGIN
+            UPDATE clothes
+            SET is_hidden = 0
+            FROM clothes
+                     INNER JOIN inserted ON clothes.category_id = inserted.category_id
+            WHERE inserted.is_hidden = 0
+              AND clothes.is_hidden = 1;
+        END;
+END;
+GO;
+
 USE cozify;
 GO
 
 -- Insert sample data into the Users table
 INSERT INTO [user] (username, [password], email, [role], first_name, last_name)
-VALUES ('john', 'password123', 'john@gmail.com', 'user', 'John', 'Doe'),
-       ('jane', 'password456', 'jane@gmail.com', 'admin', 'Jane', 'Smith'),
-       ('admin1', 'admin123', 'admin1@gmail.com', 'admin', 'Admin', 'One'),
-       ('staff1', 'staff123', 'staff1@gmail.com', 'staff', 'Staff', 'One'),
-       ('staff2', 'staff123', 'staff2@gmail.com', 'staff', 'Staff', 'Two'),
-       ('staff3', 'staff123', 'staff3@gmail.com', 'staff', 'Staff', 'Three'),
-       ('user1', 'user123', 'user1@gmail.com', 'user', 'User', 'One'),
-       ('user2', 'user123', 'user2@gmail.com', 'user', 'User', 'Two'),
-       ('user3', 'user123', 'user3@gmail.com', 'user', 'User', 'Three');
+VALUES ('john', CONVERT(CHAR(32), HashBytes('MD5', 'password123'), 2), 'john@gmail.com', 'user', 'John', 'Doe'),
+       ('jane', CONVERT(CHAR(32), HashBytes('MD5', 'password456'), 2), 'jane@gmail.com', 'admin', 'Jane', 'Smith'),
+       ('admin1', CONVERT(CHAR(32), HashBytes('MD5', 'admin123'), 2), 'admin1@gmail.com', 'admin', 'Admin', 'One'),
+       ('staff1', CONVERT(CHAR(32), HashBytes('MD5', 'staff123'), 2), 'staff1@gmail.com', 'staff', 'Staff', 'One'),
+       ('staff2', CONVERT(CHAR(32), HashBytes('MD5', 'staff123'), 2), 'staff2@gmail.com', 'staff', 'Staff', 'Two'),
+       ('staff3', CONVERT(CHAR(32), HashBytes('MD5', 'staff123'), 2), 'staff3@gmail.com', 'staff', 'Staff', 'Three'),
+       ('user1', CONVERT(CHAR(32), HashBytes('MD5', 'user123'), 2), 'user1@gmail.com', 'user', 'User', 'One'),
+       ('user2', CONVERT(CHAR(32), HashBytes('MD5', 'user123'), 2), 'user2@gmail.com', 'user', 'User', 'Two'),
+       ('user3', CONVERT(CHAR(32), HashBytes('MD5', 'user123'), 2), 'user3@gmail.com', 'user', 'User', 'Three');
 
 -- Insert sample data into the Categories table
-INSERT INTO category (category_name)
-VALUES ('T-shirts'), ('Jeans'), ('Shoes'), ('Dresses'), ('Hats'), ('Accessories');
+INSERT INTO category (category_name, is_hidden)
+VALUES ('T-shirts', 0),
+       ('Jeans', 0),
+       ('Shoes', 0),
+       ('Dresses', 0),
+       ('Hats', 0),
+       ('Accessories', 0);
 
 -- Insert sample data into the Clothes table
 INSERT INTO clothes (clothes_name, price, discount, rating, stock_quantity, size, is_hidden, category_id)
@@ -248,27 +296,38 @@ VALUES
     ('Leather Wallet', 34.99, 0, 5, 20, NULL, 0, 6);
 
 -- Inserting sample data into the updated Order table
-INSERT INTO [order] (order_time, status, payment_method, first_name, last_name, [address], phone_number, email, total, note)
+INSERT INTO [order] (order_time, status, payment_method, first_name, last_name, [address], phone_number, email, total,
+                     note)
 VALUES
     -- Pending
-    ('2022-01-05 12:00:00', 'Pending', 'COD', 'John', 'Doe', '1234 Street, City, State', '1234567890', 'johndoe@gmail.com', 99.99, 'Please deliver before 6 PM'),
-    ('2022-01-07 13:00:00', 'Pending', 'COD', 'Jane', 'Smith', '1234 Lane, City, State', '2345678901', 'janesmith@gmail.com', 89.99, 'Leave at the front door'),
+    ('2022-01-05 12:00:00', 'Pending', 'COD', 'John', 'Doe', '1234 Street, City, State', '1234567890',
+     'johndoe@gmail.com', 99.99, 'Please deliver before 6 PM'),
+    ('2022-01-07 13:00:00', 'Pending', 'COD', 'Jane', 'Smith', '1234 Lane, City, State', '2345678901',
+     'janesmith@gmail.com', 89.99, 'Leave at the front door'),
 
     -- Packaging
-    ('2022-01-10 14:00:00', 'Packaging', 'COD', 'John', 'Doe', '1234 Road, City, State', '3456789012', 'johndoe@gmail.com', 79.99, null),
-    ('2022-01-12 15:00:00', 'Packaging', 'COD', 'Jane', 'Smith', '1234 Blvd, City, State', '4567890123', 'janesmith@gmail.com', 69.99, null),
+    ('2022-01-10 14:00:00', 'Packaging', 'COD', 'John', 'Doe', '1234 Road, City, State', '3456789012',
+     'johndoe@gmail.com', 79.99, null),
+    ('2022-01-12 15:00:00', 'Packaging', 'COD', 'Jane', 'Smith', '1234 Blvd, City, State', '4567890123',
+     'janesmith@gmail.com', 69.99, null),
 
     -- Delivering
-    ('2022-01-15 16:00:00', 'Delivering', 'COD', 'John', 'Doe', '1234 Ave, City, State', '5678901234', 'johndoe@gmail.com', 59.99, 'Call upon arrival'),
-    ('2022-01-17 17:00:00', 'Delivering', 'COD', 'Jane', 'Smith', '1234 St, City, State', '6789012345', 'janesmith@gmail.com', 49.99, 'No need to ring the bell'),
+    ('2022-01-15 16:00:00', 'Delivering', 'COD', 'John', 'Doe', '1234 Ave, City, State', '5678901234',
+     'johndoe@gmail.com', 59.99, 'Call upon arrival'),
+    ('2022-01-17 17:00:00', 'Delivering', 'COD', 'Jane', 'Smith', '1234 St, City, State', '6789012345',
+     'janesmith@gmail.com', 49.99, 'No need to ring the bell'),
 
     -- Delivered
-    ('2022-01-20 18:00:00', 'Delivered', 'COD', 'John', 'Doe', '1234 Ln, City, State', '7890123456', 'johndoe@gmail.com', 39.99, NULL),
-    ('2022-01-22 19:00:00', 'Delivered', 'COD', 'Jane', 'Smith', '1234 Rd, City, State', '8901234567',  'janesmith@gmail.com',29.99, NULL),
+    ('2022-01-20 18:00:00', 'Delivered', 'COD', 'John', 'Doe', '1234 Ln, City, State', '7890123456',
+     'johndoe@gmail.com', 39.99, NULL),
+    ('2022-01-22 19:00:00', 'Delivered', 'COD', 'Jane', 'Smith', '1234 Rd, City, State', '8901234567',
+     'janesmith@gmail.com', 29.99, NULL),
 
     -- Cancelled
-    ('2022-01-25 20:00:00', 'Cancelled', 'COD', 'John', 'Doe', '1234 Blvd, City, State', '9012345678', 'johndoe@gmail.com', 19.99, NULL),
-    ('2022-01-27 21:00:00', 'Cancelled', 'COD', 'Jane', 'Smith', '1234 Ave, City, State', '0123456789', 'janesmith@gmail.com', 9.99, NULL);
+    ('2022-01-25 20:00:00', 'Cancelled', 'COD', 'John', 'Doe', '1234 Blvd, City, State', '9012345678',
+     'johndoe@gmail.com', 19.99, NULL),
+    ('2022-01-27 21:00:00', 'Cancelled', 'COD', 'Jane', 'Smith', '1234 Ave, City, State', '0123456789',
+     'janesmith@gmail.com', 9.99, NULL);
 
 -- Inserting sample data into the OrderItem table
 INSERT INTO order_item (order_id, clothes_id, quantity, subtotal)
@@ -283,5 +342,5 @@ VALUES
 
     -- Order 3
     (3, 2, 2, 19.98), -- 2 items of clothes 2 for order 3
-    (3, 3, 1, 9.99);  -- 1 item of clothes 3 for order 3
+    (3, 3, 1, 9.99); -- 1 item of clothes 3 for order 3
 GO

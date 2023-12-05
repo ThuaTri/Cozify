@@ -1,0 +1,87 @@
+<!-- Sidebar Start -->
+<aside class="left-sidebar">
+  <!-- Sidebar scroll-->
+  <div>
+    <div class="brand-logo d-flex align-items-center justify-content-between">
+      <a href="/dashboard" class="text-nowrap logo-img">
+        <img src="${pageContext.request.contextPath}/resources/media/logo.png" width="24px;" alt="logo" />
+        <span class="ms-2 text-black fs-5 fw-bold">Cozify Dashboard</span>
+      </a>
+      <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
+        <i class="ph-bold ph-x fs-8"></i>
+      </div>
+    </div>
+    <!-- Sidebar navigation-->
+    <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+      <ul id="sidebarnav">
+        <li class="nav-small-cap">
+          <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+          <span class="hide-menu">Home</span>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/dashboard" aria-expanded="false">
+                <span>
+                  <i class="ph-bold ph-house"></i>
+                </span>
+            <span class="hide-menu">Dashboard</span>
+          </a>
+        </li>
+        <li class="nav-small-cap">
+          <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+          <span class="hide-menu">Products</span>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/dashboard/category" aria-expanded="false">
+                <span>
+                  <i class="ph-bold ph-squares-four"></i>
+                </span>
+            <span class="hide-menu">Categories</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/dashboard/clothes" aria-expanded="false">
+                <span>
+                  <i class="ph-bold ph-t-shirt"></i></i>
+                </span>
+            <span class="hide-menu">Clothes</span>
+          </a>
+        </li>
+        <li class="nav-small-cap">
+          <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+          <span class="hide-menu">Customers</span>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/dashboard/user" aria-expanded="false">
+                <span>
+                  <i class="ph-bold ph-users"></i></i>
+                </span>
+            <span class="hide-menu">Users</span>
+          </a>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/dashboard/order" aria-expanded="false">
+                <span>
+                  <i class="ph-bold ph-clipboard-text"></i></i>
+                </span>
+            <span class="hide-menu">Orders</span>
+          </a>
+        </li>
+        <li class="nav-small-cap">
+          <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+          <span class="hide-menu">Personnel</span>
+        </li>
+        <li class="sidebar-item">
+          <a class="sidebar-link" href="/dashboard/staff" aria-expanded="false">
+                <span>
+                  <i class="ph-bold ph-users-four"></i></i>
+                </span>
+            <span class="hide-menu">Staffs</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+    <!-- End Sidebar navigation -->
+  </div>
+  <!-- End Sidebar scroll-->
+</aside>
+<!--  Sidebar End -->

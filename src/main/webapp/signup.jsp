@@ -8,50 +8,35 @@
   </jsp:include>
 </head>
 <body>
-<%@ include file="components/sections/header.jspf" %>
+<%@ include file="components/sections/store_components.jspf" %>
 
 <div class="row justify-content-center">
   <div class="col-md-12 col-lg-10">
-    <div class="wrap d-md-flex">
+    <div class="wrap d-md-flex justify-content-center">
       <div class="login-wrap p-4 p-md-5 w-50">
         <div class="d-flex">
           <div class="w-100">
-            <h3 class="mb-4">Sign In</h3>
-          </div>
-          <div class="w-100">
-            <p class="social-media d-flex justify-content-end">
-              <a href="#" class="social-icon d-flex align-items-center justify-content-center"><span
-                  class="fa fa-facebook"></span></a>
-              <a href="#" class="social-icon d-flex align-items-center justify-content-center"><span
-                  class="fa fa-twitter"></span></a>
-            </p>
+            <h3 class="mb-4">Sign Up</h3>
           </div>
         </div>
-        <form action="#" class="signin-form">
+        <form action="/signup" method="post" class="signin-form d-flex flex-column">
           <div class="form-group mb-3">
             <label class="label" for="username">Username</label>
-            <input id="username" type="text" class="form-control" placeholder="username" required="">
+            <input id="username" name="username" type="text" class="form-control" placeholder="" required="">
+          </div>
+          <div class="form-group mb-3">
+            <label class="label" for="email">Email</label>
+            <input id="email" name="email" type="email" class="form-control" placeholder="" required="">
           </div>
           <div class="form-group mb-3">
             <label class="label" for="password">Password</label>
-            <input id="password" type="password" class="form-control" placeholder="password" required="">
+            <input id="password" name="password" type="password" class="form-control" placeholder="" required="">
           </div>
-          <div class="form-group">
-            <button type="submit" class="form-control btn btn-primary rounded submit px-3">Sign In</button>
-          </div>
-          <div class="form-group d-md-flex">
-            <div class="w-50 text-left">
-              <label class="checkbox-wrap checkbox-primary mb-0">Remember Me
-                <input type="checkbox" checked="">
-                <span class="checkmark"></span>
-              </label>
-            </div>
-            <div class="w-50 text-md-right">
-              <a href="#">Forgot Password</a>
-            </div>
+          <div class="form-group mt-3">
+            <button type="submit" class="form-control btn btn-primary rounded submit px-3">Sign in</button>
           </div>
         </form>
-        <p class="text-center">Not a member? <a data-toggle="tab" href="#signup">Sign Up</a></p>
+        <p class="text-center">Already have an account? <a data-toggle="tab" href="/login">Log in instead.</a></p>
       </div>
     </div>
   </div>

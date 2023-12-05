@@ -1,6 +1,8 @@
 package models;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     // user_id, auto-incremented, primary key, not null
     private int userId;
 
@@ -31,8 +33,7 @@ public class User {
     public User() {
     }
 
-    public User(int userId, String username, String password, String email, String role) {
-        this.userId = userId;
+    public User(String username, String password, String email, String role) {
         this.username = username;
         this.password = password;
         this.email = email;

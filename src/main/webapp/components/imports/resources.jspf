@@ -6,6 +6,7 @@
 <!-- Stylesheets -->
 <link href="${pageContext.request.contextPath}/resources/lib/bootstrap-5.3.2/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500..800">
+<link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/styles.min.css">
 
 <!-- JavaScript -->
 <script src="${pageContext.request.contextPath}/resources/lib/jQuery-3.7.0/jquery-3.7.0.min.js"></script>

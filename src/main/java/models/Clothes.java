@@ -1,5 +1,7 @@
 package models;
 
+import daos.CategoryDao;
+
 import java.math.BigDecimal;
 
 public class Clothes {
@@ -30,12 +32,16 @@ public class Clothes {
   // category_id, not null
   private int categoryId;
 
+  private String categoryName;
+
+  private String imgUrl;
+
   public Clothes() {
   }
 
   public Clothes(int clothesId, String clothesName, BigDecimal price, int discount, int rating, Integer stockQuantity, String size, Boolean isHidden, int categoryId) {
     this.clothesId = clothesId;
-    this.clothesName = clothesName;
+    this.setClothesName(clothesName);
     this.price = price;
     this.discount = discount;
     this.rating = rating;
@@ -43,6 +49,8 @@ public class Clothes {
     this.size = size;
     this.isHidden = isHidden;
     this.categoryId = categoryId;
+    CategoryDao categoryDao = new CategoryDao();
+    this.categoryName = categoryDao.getById(categoryId).getCategoryName();
   }
 
   public int getClothesId() {
@@ -59,6 +67,8 @@ public class Clothes {
 
   public void setClothesName(String clothesName) {
     this.clothesName = clothesName;
+    String fileName = clothesName.replaceAll(" ", "-").toLowerCase() + ".jpg";
+    this.setImgUrl(fileName);
   }
 
   public BigDecimal getPrice() {
@@ -101,11 +111,11 @@ public class Clothes {
     this.size = size;
   }
 
-  public Boolean getHidden() {
+  public Boolean getIsHidden() {
     return isHidden;
   }
 
-  public void setHidden(Boolean hidden) {
+  public void setIsHidden(Boolean hidden) {
     isHidden = hidden;
   }
 
@@ -115,5 +125,25 @@ public class Clothes {
 
   public void setCategoryId(int categoryId) {
     this.categoryId = categoryId;
+    CategoryDao categoryDao = new CategoryDao();
+    Category category = categoryDao.getById(categoryId);
+    categoryDao.update(category);
+    this.setCategoryName(category.getCategoryName());
+  }
+
+  public String getCategoryName() {
+    return categoryName;
+  }
+
+  public void setCategoryName(String categoryName) {
+    this.categoryName = categoryName;
+  }
+
+  public String getImgUrl() {
+    return imgUrl;
+  }
+
+  public void setImgUrl(String imgUrl) {
+    this.imgUrl = imgUrl;
   }
 }

@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class CartController extends HttpServlet {
   @Override
@@ -92,7 +93,7 @@ public class CartController extends HttpServlet {
         ? Integer.parseInt(request.getParameter("quantity"))
         : -1;
     int minQuantity = 1;
-    int maxQuantity = Math.max(5, clothes.getStockQuantity());
+    int maxQuantity = Math.min(5, clothes.getStockQuantity());
     String size = request.getParameter("size");
 
     // price * (100 - discount) / 100
@@ -137,15 +138,17 @@ public class CartController extends HttpServlet {
             cart.setTotal(newTotal);
           }
 
-          if (size != null && !size.isEmpty()) {
+          // If clothes have a size, update the clothes' size
+          if (!Objects.equals(item.getClothes().getSize(), "null") && !item.getClothes().getSize().isEmpty()) {
             Clothes newClothes = clothesDao.getOtherClothesBySize(clothes, size);
-            item.setClothes(newClothes);
-            orderItems.set(orderItems.indexOf(item), item);
-            cart.setOrderItems(orderItems);
+            item.setClothes(newClothes); // new clothes have a different size, and therefore different id
+          } else {
+            item.setClothes(clothes);
           }
+          orderItems.set(orderItems.indexOf(item), item);
+          itemExists = true;
+          break;
         }
-        itemExists = true;
-        break;
       }
 
       if (!itemExists) {
@@ -153,7 +156,7 @@ public class CartController extends HttpServlet {
         cart.setTotal(cart.getTotal().add(subtotal));
       }
 
-      cart.setOrderItems(cart.getOrderItems());
+      cart.setOrderItems(orderItems);
     }
 
     session.setAttribute("message", "success-cart");

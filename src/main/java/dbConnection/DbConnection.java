@@ -15,12 +15,12 @@ public class DbConnection {
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
             try {
                 conn = DriverManager.getConnection("jdbc:sqlserver://"
-                        + "localhost:1450;"
+                        + "LAPTOP-17J33K00\\SQLEXPRESS:1433;"
                         + "databaseName=cozify;"
                         + "user=sa;" // Username
-                        + "password=sa@123456;" // Password
+                        + "password=admin123;" // Password
                         + "encrypt=true;"
-                        + "trustServerCertificate=true;");
+                        + "trustServerCertificate= true;");
             } catch (SQLException ex) {
                 Logger.getLogger(DbConnection.class.getName()).log(Level.SEVERE, null, ex);
             }

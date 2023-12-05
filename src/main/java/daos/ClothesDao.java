@@ -35,7 +35,7 @@ public class ClothesDao extends GenericDao<Clothes> {
    */
   public List<Clothes> getAllDistinct() {
     list = null;
-    String sql = "select * from clothes where size = 'M' or size is null";
+    String sql = "select * from clothes where size = 'M' or size = '8' or size is null";
     try {
       list = new ArrayList<>();
       preparedStatement = connection.prepareStatement(sql);
@@ -47,6 +47,31 @@ public class ClothesDao extends GenericDao<Clothes> {
       handleSQLException(e);
     }
     return list;
+  }
+
+  public List<String> getAvailableSizes(Clothes clothes) {
+    List<String> result = null;
+    String sql = "select size from clothes where clothes_name = ? and stock_quantity > 0 " +
+        "order by case size " +
+        "when 'XS' then 1 " +
+        "when 'S' then 2 " +
+        "when 'M' then 3 " +
+        "when 'L' then 4 " +
+        "when 'XL' then 5 " +
+        "when 'XXL' then 6 " +
+        "else 7 end";
+    try {
+      result = new ArrayList<>();
+      preparedStatement = connection.prepareStatement(sql);
+      preparedStatement.setString(1, clothes.getClothesName());
+      resultSet = preparedStatement.executeQuery();
+      while (resultSet.next()) {
+        result.add(resultSet.getString("size"));
+      }
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return result;
   }
 
   @Override
@@ -74,7 +99,7 @@ public class ClothesDao extends GenericDao<Clothes> {
     clothes.setRating(resultSet.getInt("rating"));
     clothes.setStockQuantity(resultSet.getInt("stock_quantity"));
     clothes.setSize(resultSet.getString("size"));
-    clothes.setHidden(resultSet.getBoolean("is_hidden"));
+    clothes.setIsHidden(resultSet.getBoolean("is_hidden"));
     clothes.setCategoryId(resultSet.getInt("category_id"));
     return clothes;
   }
@@ -146,7 +171,7 @@ public class ClothesDao extends GenericDao<Clothes> {
     preparedStatement.setInt(4, clothes.getRating());
     preparedStatement.setInt(5, clothes.getStockQuantity());
     preparedStatement.setString(6, clothes.getSize());
-    preparedStatement.setBoolean(7, clothes.getHidden());
+    preparedStatement.setBoolean(7, clothes.getIsHidden());
     preparedStatement.setInt(8, clothes.getCategoryId());
   }
 

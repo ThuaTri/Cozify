@@ -7,10 +7,9 @@ package filters;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+
+import java.io.*;
+
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -18,90 +17,65 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpSession;
+import models.User;
+
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Base64;
 
 public class AuthenticationFilter implements Filter {
-
-  private static final boolean debug = true;
 
   // The filter configuration object we are associated with.  If
   // this value is null, this filter instance is not currently
   // configured. 
   private FilterConfig filterConfig = null;
 
+  private final String[] IGNORED_URLS = {
+    "/signup",
+    "/login"
+  };
+
+  private final String[] ADMIN_ONLY_DESTINATIONS = {
+    "/dashboard",
+  };
+
+  private final String[] USER_ONLY_DESTINATIONS = {
+      "/",
+      "/cart",
+      "/checkout"
+  };
+
+  private final String[] USER_RESTRICTED_DESTINATIONS = {
+    "/cart",
+    "/checkout"
+  };
+
   public AuthenticationFilter() {
   }
 
   private void doBeforeProcessing(ServletRequest request, ServletResponse response)
-          throws IOException, ServletException {
-    if (debug) {
-      log("AuthenticationFilter:DoBeforeProcessing");
+      throws IOException, ServletException {
+    HttpSession session = ((HttpServletRequest) request).getSession();
+
+    // Change message scope from session to request
+    if (session.getAttribute("message") != null) {
+      String message = (String) session.getAttribute("message");
+      request.setAttribute("message", message);
+      session.removeAttribute("message");
     }
-
-    // Write code here to process the request and/or response before
-    // the rest of the filter chain is invoked.
-    // For example, a logging filter might log items on the request object,
-    // such as the parameters.
-    /*
-	for (Enumeration en = request.getParameterNames(); en.hasMoreElements(); ) {
-	    String name = (String)en.nextElement();
-	    String values[] = request.getParameterValues(name);
-	    int n = values.length;
-	    StringBuffer buf = new StringBuffer();
-	    buf.append(name);
-	    buf.append("=");
-	    for(int i=0; i < n; i++) {
-	        buf.append(values[i]);
-	        if (i < n-1)
-	            buf.append(",");
-	    }
-	    log(buf.toString());
-	}
-     */
-  }
-
-  private void doAfterProcessing(ServletRequest request, ServletResponse response)
-          throws IOException, ServletException {
-    if (debug) {
-      log("AuthenticationFilter:DoAfterProcessing");
-    }
-
-    // Write code here to process the request and/or response after
-    // the rest of the filter chain is invoked.
-    // For example, a logging filter might log the attributes on the
-    // request object after the request has been processed. 
-    /*
-	for (Enumeration en = request.getAttributeNames(); en.hasMoreElements(); ) {
-	    String name = (String)en.nextElement();
-	    Object value = request.getAttribute(name);
-	    log("attribute: " + name + "=" + value.toString());
-
-	}
-     */
-    // For example, a filter might append something to the response.
-    /*
-	PrintWriter respOut = new PrintWriter(response.getWriter());
-	respOut.println("<P><B>This has been appended by an intrusive filter.</B>");
-     */
   }
 
   /**
-   *
-   * @param request The servlet request we are processing
+   * @param request  The servlet request we are processing
    * @param response The servlet response we are creating
-   * @param chain The filter chain we are processing
-   *
-   * @exception IOException if an input/output error occurs
-   * @exception ServletException if a servlet error occurs
+   * @param chain    The filter chain we are processing
+   * @throws IOException      if an input/output error occurs
+   * @throws ServletException if a servlet error occurs
    */
   public void doFilter(ServletRequest request, ServletResponse response,
-          FilterChain chain)
-          throws IOException, ServletException {
-
-    if (debug) {
-      log("AuthenticationFilter:doFilter()");
-    }
+                       FilterChain chain)
+      throws IOException, ServletException {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
@@ -109,255 +83,93 @@ public class AuthenticationFilter implements Filter {
     doBeforeProcessing(request, response);
 
     Throwable problem = null;
+
     try {
-      // Authenticates all pages except index.jsp (no need to authenticate there)
       String path = httpRequest.getRequestURI();
-      boolean isStaticResource = (path.endsWith("/login")
-              || path.isEmpty()
-              || path.endsWith(".css")
-              || path.endsWith(".map")
-              || path.endsWith(".js")
-              || path.endsWith(".png")
-              || path.endsWith("jpg")
-              || path.endsWith(".jpeg")
-              || path.endsWith(".gif")
-              || path.endsWith(".svg")
-              || path.endsWith(".ico")
-              || path.endsWith(".json"));
-      if (!isStaticResource) {
-        // URI does not lead to login controller itself or static resources
-        // Such as a normal page
-        if (path.endsWith("/logout")) {
-          // User/Admin clicks the log out button
-          logout(httpRequest, httpResponse);
-          return;
-        } else if (path.startsWith("/admin")) {
-          // Destination page is admin page
-          if (getAuthStatus(httpRequest) == 2) {
-            // Account is of Admin type, proceeds to admin page
-            HttpSession session = httpRequest.getSession();
-            boolean hasAdminSession = (session.getAttribute("admin") != null
-                    && !(((String) session.getAttribute("admin")).isEmpty()));
-            if (hasAdminSession) {
-              String username = (String) session.getAttribute("admin");
-              request.setAttribute("adminName", URLDecoder.decode(username, StandardCharsets.UTF_8));
-            } else {
-              Cookie[] cookies = httpRequest.getCookies();
-              Cookie admin = null;
-              Cookie adminID = null;
-              for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("admin")) {
-                  admin = cookie;
-                  String adminName = cookie.getValue();
-                  request.setAttribute("adminName", URLDecoder.decode(adminName, StandardCharsets.UTF_8));
-                  break;
-                }
-              }
-              
-              for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("adminID")) {
-                    adminID = cookie;
-                    String admin_id = cookie.getValue();
-                    byte adminIDValue = Byte.parseByte(admin_id);
-                    System.out.println(adminIDValue);
-                    session.setAttribute("adminID", adminIDValue);
-                    break;
-                }
-              }
-            }
-            request.setAttribute("isLoggedIn", true);
-          } else {
-            // Account is of User type: cannot access Admin page
-            // Or if auth fails, also redirects to home page
-            httpResponse.sendRedirect("/");
-            return;
-          }
-        } else if (path.startsWith("/promotionManager")) {
-          // Destination page is admin page
-          if (getAuthStatus(httpRequest) == 3) {
-            // Account is of Admin type, proceeds to admin page
-            HttpSession session = httpRequest.getSession();
-            boolean hasPromotionManagerSession = (session.getAttribute("promotionManager") != null
-                    && !(((String) session.getAttribute("promotionManager")).isEmpty()));
-            if (hasPromotionManagerSession) {
-              String username = (String) session.getAttribute("promotionManager");
-              request.setAttribute("promotionManagerName", URLDecoder.decode(username, StandardCharsets.UTF_8));
-            } else {
-              Cookie[] cookies = httpRequest.getCookies();
-              Cookie promotionManager = null;
+      boolean isIgnored = Arrays.stream(IGNORED_URLS)
+          .anyMatch(path::startsWith);
+      boolean isUserRestrictedDestination = Arrays.stream(USER_RESTRICTED_DESTINATIONS)
+          .anyMatch(path::startsWith);
 
-              for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("promotionManager")) {
-                  promotionManager = cookie;
-                  String promotionManagerName = cookie.getValue();
-                  request.setAttribute("promotionManagerName", URLDecoder.decode(promotionManagerName, StandardCharsets.UTF_8));
-                  break;
-                }
-              }
-            }
-            request.setAttribute("isLoggedIn", true);
-          } else {
-            // Account is of User type: cannot access Admin page
-            // Or if auth fails, also redirects to home page
-            httpResponse.sendRedirect("/");
-            return;
-          }
-        } else if (path.startsWith("/staff")) {
-          // Destination page is admin page
-          if (getAuthStatus(httpRequest) == 4) {
-            // Account is of Admin type, proceeds to admin page
-            HttpSession session = httpRequest.getSession();
-            boolean hasStaffSession = (session.getAttribute("staff") != null
-                    && !(((String) session.getAttribute("staff")).isEmpty()));
-            if (hasStaffSession) {
-              String username = (String) session.getAttribute("staff");
-              request.setAttribute("StaffName", URLDecoder.decode(username, StandardCharsets.UTF_8));
-            } else {
-              Cookie[] cookies = httpRequest.getCookies();
-              Cookie staff = null;
-              Cookie staffID = null;
-
-              for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("staff")) {
-                  staff = cookie;
-                  String StaffName = cookie.getValue();
-                  request.setAttribute("StaffName", URLDecoder.decode(StaffName, StandardCharsets.UTF_8));
-                  break;
-                }
-              }
-              
-              for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("staffID")) {
-                    staffID = cookie;
-                    String staff_id = cookie.getValue();
-                    byte staffIDValue = Byte.parseByte(staff_id);
-                    session.setAttribute("staffID", staffIDValue);
-                    break;
-                }
-              }
-              
-            }
-            request.setAttribute("isLoggedIn", true);
-          } else {
-            // Account is of User type: cannot access Admin page
-            // Or if auth fails, also redirects to home page
-            httpResponse.sendRedirect("/");
-            return;
-          }
-        } else if (path.startsWith("/user")) {
-          // Destination page is user page
-          if (getAuthStatus(httpRequest) == 2) {
-            // Account is of Admin type, cannot access User pages
-            httpResponse.sendRedirect("/admin");
-            return;
-          } else if (getAuthStatus(httpRequest) == 1) {
-            // Account is of User type
-            HttpSession session = httpRequest.getSession();
-            boolean hasUserSession = (session.getAttribute("user") != null
-                    && !(((String) session.getAttribute("user")).isEmpty()));
-            if (hasUserSession) {
-              String username = (String) session.getAttribute("user");
-              request.setAttribute("username", URLDecoder.decode(username, StandardCharsets.UTF_8));
-            } else {
-              Cookie[] cookies = httpRequest.getCookies();
-              Cookie user = null;
-              Cookie userID = null;
-
-              for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("user")) {
-                  user = cookie;
-                  String username = user.getValue();
-                  request.setAttribute("username", URLDecoder.decode(username, StandardCharsets.UTF_8));
-                }
-                if (cookie.getName().equals("userID")) {
-                  userID = cookie;
-                  session.setAttribute("userID", Integer.parseInt(userID.getValue()));
-                }
-              }
-            }
-            request.setAttribute("isLoggedIn", true);
-          } else {
-            // Return to home page if authentication fails
-            httpResponse.sendRedirect("/");
-          }
-        } else {
-          // Destination page is non-admin page nor user page
-          if (getAuthStatus(httpRequest) == 1) {
-            // Account is of User type
-            HttpSession session = httpRequest.getSession();
-            boolean hasUserSession = (session.getAttribute("user") != null
-                    && !(((String) session.getAttribute("user")).isEmpty()));
-            if (hasUserSession) {
-              String username = (String) session.getAttribute("user");
-              request.setAttribute("username", URLDecoder.decode(username, StandardCharsets.UTF_8));
-            } else {
-              Cookie[] cookies = httpRequest.getCookies();
-              Cookie user = null;
-              Cookie userID = null;
-
-              for (Cookie cookie : cookies) {
-                if (cookie.getName().equals("user")) {
-                  user = cookie;
-                  String username = user.getValue();
-                  session.setAttribute("username", URLDecoder.decode(username, StandardCharsets.UTF_8));
-                }
-                if (cookie.getName().equals("userID")) {
-                  userID = cookie;
-                  session.setAttribute("userID", Integer.parseInt(userID.getValue()));
-                }
-              }
-            }
-            request.setAttribute("isLoggedIn", true);
-          } else if (getAuthStatus(httpRequest) == 2) {
-            // Account is of Admin type, cannot access user pages
-            httpResponse.sendRedirect("/admin");
-            return;
-          } else if (getAuthStatus(httpRequest) == 3) {
-            // Account is of Admin type, cannot access user pages
-            httpResponse.sendRedirect("/promotionManager");
-            return;
-          } else if (getAuthStatus(httpRequest) == 4) {
-            // Account is of Admin type, cannot access user pages
-            httpResponse.sendRedirect("/staff");
-            return;
-          }    
-
-        }
-        // If auth fails in neither admin nor user pages, continue the filter (nothing happens)
-        
+      if (!isIgnored) {
         HttpSession session = httpRequest.getSession();
 
-        if (session != null && session.getAttribute("toastMessage") != null) {
-          String toastMessage = (String) session.getAttribute("toastMessage");
-          session.removeAttribute("toastMessage");
-          request.setAttribute("toastMessage", toastMessage);
+        if (path.endsWith("/logout")) {
+          logout(httpRequest, httpResponse);
+          return;
         }
 
-        
-        // Set OTP trigger if there is any
-        if (session != null && session.getAttribute("triggerOTP") != null) {
-          if (session.getAttribute("triggerOTP") != null) {
-            session.removeAttribute("triggerOTP");
-            request.setAttribute("triggerOTP", "true");
+        boolean hasUserSession = session.getAttribute("user") != null;
+        // Set up cookies if this filter is invoked from the login page
+        if (hasUserSession) {
+          request.setAttribute("isLoggedIn", true);
+        } else {
+          Cookie[] cookies = httpRequest.getCookies();
+          if (cookies != null) {
+            for (Cookie cookie : cookies) {
+              if (cookie.getName().equals("user")) {
+                String cookieValue = cookie.getValue();
+
+                // Decode the cookie value if necessary
+                byte[] decodedBytes = Base64.getDecoder().decode(cookieValue);
+
+                // Deserialize the cookie value into an object
+                Object user = null;
+                try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decodedBytes))) {
+                  user = ois.readObject();
+                } catch (ClassNotFoundException | IOException e) {
+                  e.printStackTrace();
+                }
+
+                session.setAttribute("user", user);
+                request.setAttribute("isLoggedIn", true);
+              }
+            }
           }
         }
-      }
+
+        // If the user is not logged in while accessing a restricted destination, redirect to login
+        if(isUserRestrictedDestination && session.getAttribute("user") == null) {
+          httpResponse.sendRedirect("/login");
+          return;
+        }
+
+        // Get the destination from the request
+        String destination = ((HttpServletRequest) request).getRequestURI();
+
+        // Check the role of the logged in user
+        if (session.getAttribute("user") != null) {
+          User user = (User) session.getAttribute("user");
 
 
-      HttpSession session = httpRequest.getSession();
-      // // Process the default active tab upon admin page load,
-      // // depending on the user's previous action on which tab page
-      // if (session != null && session.getAttribute("tabID") != null) {
-      //   int tabID = (Integer) session.getAttribute("tabID");
-      //   session.removeAttribute("tabID");
-      //   request.setAttribute("tabID", tabID);
-      // }
+          // Get the user's role, then decide where to redirect
+          switch (user.getRole()) {
+            case "admin", "staff" -> {
+              if (Arrays.stream(ADMIN_ONLY_DESTINATIONS).noneMatch(destination::startsWith)) {
+                httpResponse.sendRedirect("/dashboard");
+                return;
+              }
+            }
+            case "user" -> {
+              if (Arrays.stream(USER_ONLY_DESTINATIONS).noneMatch(destination::startsWith)) {
+                httpResponse.sendRedirect("/");
+                return;
+              }
+            }
+          }
+        } else { // User is not logged in while attempting to access restricted destination, be it admin or staff
+          // In the case of cart or checkout, redirect to login
+          if (Arrays.stream(USER_RESTRICTED_DESTINATIONS).anyMatch(destination::startsWith)) {
+              httpResponse.sendRedirect("/login");
+              return;
+          }
 
-      // Process the special case of order history, to display the modal showing order history
-      if (session != null && session.getAttribute("orderHistory") != null) {
-          String orderHistory = (String) session.getAttribute("orderHistory");
-          session.removeAttribute("orderHistory");
-          request.setAttribute("orderHistory", orderHistory);
+          // In the case of admin or staff, redirect to home page
+          if (Arrays.stream(ADMIN_ONLY_DESTINATIONS).anyMatch(destination::startsWith)) {
+            httpResponse.sendRedirect("/");
+            return;
+          }
+        }
       }
 
       chain.doFilter(request, response);
@@ -370,12 +182,10 @@ public class AuthenticationFilter implements Filter {
       t.printStackTrace();
     }
 
-    doAfterProcessing(request, response);
-
     // If there was a problem, we want to rethrow it if it is
     // a known type, otherwise log it.
     if (problem
-            != null) {
+        != null) {
       if (problem instanceof ServletException) {
         throw (ServletException) problem;
       }
@@ -413,11 +223,6 @@ public class AuthenticationFilter implements Filter {
    */
   public void init(FilterConfig filterConfig) {
     this.filterConfig = filterConfig;
-    if (filterConfig != null) {
-      if (debug) {
-        log("AuthenticationFilter:Initializing filter");
-      }
-    }
   }
 
   /**
@@ -486,7 +291,7 @@ public class AuthenticationFilter implements Filter {
    * loaded.
    *
    * @param request The HttpServletRequest object whose session info and cookies
-   * will be extracted from.
+   *                will be extracted from.
    * @return An integer status code depicting the authentication result:
    * <ul>
    * <li>1 if successful user authentication with session stored</li>
@@ -502,21 +307,17 @@ public class AuthenticationFilter implements Filter {
 
     HttpSession session = request.getSession();
     boolean hasUserSession = (session.getAttribute("user") != null
-            && !(((String) session.getAttribute("user")).isEmpty()));
+        && !(((String) session.getAttribute("user")).isEmpty()));
     boolean hasAdminSession = (session.getAttribute("admin") != null
-            && !(((String) session.getAttribute("admin")).isEmpty()));
-    boolean hasPromotionManagerSession = (session.getAttribute("promotionManager") != null
-            && !(((String) session.getAttribute("promotionManager")).isEmpty()));
+        && !(((String) session.getAttribute("admin")).isEmpty()));
     boolean hasStaffSession = (session.getAttribute("staff") != null
-            && !(((String) session.getAttribute("staff")).isEmpty()));
+        && !(((String) session.getAttribute("staff")).isEmpty()));
     if (hasUserSession) {
       authStatus = 1;
     } else if (hasAdminSession) {
       authStatus = 2;
-    } else if (hasPromotionManagerSession) {
-      authStatus = 3;
     } else if (hasStaffSession) {
-      authStatus = 4;
+      authStatus = 3;
     } else if (cookies != null) {
       for (Cookie cookie : cookies) {
         if (cookie.getName().equals("user")) {
@@ -538,7 +339,7 @@ public class AuthenticationFilter implements Filter {
   }
 
   public void logout(HttpServletRequest request, HttpServletResponse response)
-          throws ServletException, IOException {
+      throws ServletException, IOException {
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       for (Cookie cookie : cookies) {

@@ -3,6 +3,7 @@ package models;
 import daos.ClothesDao;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class OrderItem {
   // order_item_id, Auto-incremented, primary key, not null
@@ -23,6 +24,8 @@ public class OrderItem {
   // subtotal
   private BigDecimal subtotal;
 
+  private List<String> availableSizes;
+
   public OrderItem() {
   }
 
@@ -32,6 +35,7 @@ public class OrderItem {
     this.subtotal = subtotal;
     ClothesDao clothesDao = new ClothesDao();
     this.clothes = clothesDao.getById(clothesId);
+    this.availableSizes = clothesDao.getAvailableSizes(clothes);
   }
 
   public int getOrderItemId() {
@@ -80,5 +84,13 @@ public class OrderItem {
 
   public void setSubtotal(BigDecimal subtotal) {
     this.subtotal = subtotal;
+  }
+
+  public List<String> getAvailableSizes() {
+    return availableSizes;
+  }
+
+  public void setAvailableSizes(List<String> availableSizes) {
+    this.availableSizes = availableSizes;
   }
 }
