@@ -19,20 +19,24 @@
             <h3 class="mb-4">Log in</h3>
           </div>
         </div>
-        <form action="/login" method="post" class="login-form d-flex flex-column">
+        <form action="/login" method="post" class="login-form d-flex flex-column needs-validation" novalidate="">
           <div class="form-group mb-3">
             <label class="label" for="email">Email</label>
             <input id="email" name="email" type="email" class="form-control" placeholder="" required="">
+            <div class="invalid-feedback">
+              Valid email is required.
+            </div>
           </div>
           <div class="form-group mb-3">
             <label class="label" for="password">Password</label>
             <input id="password" name="password" type="password" class="form-control" placeholder="" required="">
+            <div class="invalid-feedback">
+              Valid password is required.
+            </div>
           </div>
-          <div class="form-group mt-3">
-            <button type="submit" class="form-control btn btn-primary rounded submit px-3">Log in</button>
-          </div>
+          <button type="submit" class="btn btn-primary rounded submit mt-3 px-3">Log in</button>
         </form>
-        <p class="text-center">No account yet? <a data-toggle="tab" href="/signup">Sign up here.</a></p>
+        <p class="text-center mt-3">No account yet? <a data-toggle="tab" href="/signup">Sign up here.</a></p>
       </div>
     </div>
   </div>

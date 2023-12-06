@@ -1,26 +1,13 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Filter.java to edit this template
- */
 package filters;
 
+import jakarta.servlet.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import java.io.*;
-
-import jakarta.servlet.Filter;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.FilterConfig;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpSession;
 import models.User;
 
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
+import java.io.*;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -46,24 +33,18 @@ public class AuthenticationFilter implements Filter {
       "/checkout"
   };
 
+  private final String[] STAFF_ONLY_DESTINATIONS = {
+      "/dashboard/category",
+      "/dashboard/clothes",
+      "/dashboard/order"
+  };
+
   private final String[] USER_RESTRICTED_DESTINATIONS = {
     "/cart",
     "/checkout"
   };
 
   public AuthenticationFilter() {
-  }
-
-  private void doBeforeProcessing(ServletRequest request, ServletResponse response)
-      throws IOException, ServletException {
-    HttpSession session = ((HttpServletRequest) request).getSession();
-
-    // Change message scope from session to request
-    if (session.getAttribute("message") != null) {
-      String message = (String) session.getAttribute("message");
-      request.setAttribute("message", message);
-      session.removeAttribute("message");
-    }
   }
 
   /**
@@ -79,8 +60,6 @@ public class AuthenticationFilter implements Filter {
 
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     HttpServletResponse httpResponse = (HttpServletResponse) response;
-
-    doBeforeProcessing(request, response);
 
     Throwable problem = null;
 
@@ -144,16 +123,29 @@ public class AuthenticationFilter implements Filter {
 
           // Get the user's role, then decide where to redirect
           switch (user.getRole()) {
-            case "admin", "staff" -> {
+            case "admin" -> {
               if (Arrays.stream(ADMIN_ONLY_DESTINATIONS).noneMatch(destination::startsWith)) {
                 httpResponse.sendRedirect("/dashboard");
                 return;
               }
             }
+            case "staff" -> {
+              if (Arrays.stream(STAFF_ONLY_DESTINATIONS).noneMatch(destination::startsWith)) {
+                // DashboardController will automatically redirect to staff pages
+                // so no need to redirect
+                if (!destination.equals("/dashboard")) {
+                  httpResponse.sendRedirect("/dashboard");
+                  return;
+                }
+              }
+            }
             case "user" -> {
               if (Arrays.stream(USER_ONLY_DESTINATIONS).noneMatch(destination::startsWith)) {
-                httpResponse.sendRedirect("/");
-                return;
+                // Just like the case of staff, users will automatically redirect to home page
+                if (!destination.equals("/")) {
+                  httpResponse.sendRedirect("/");
+                  return;
+                }
               }
             }
           }
@@ -284,58 +276,6 @@ public class AuthenticationFilter implements Filter {
 
   public void log(String msg) {
     filterConfig.getServletContext().log(msg);
-  }
-
-  /**
-   * Returns a status code for authentication. This is used every time a page is
-   * loaded.
-   *
-   * @param request The HttpServletRequest object whose session info and cookies
-   *                will be extracted from.
-   * @return An integer status code depicting the authentication result:
-   * <ul>
-   * <li>1 if successful user authentication with session stored</li>
-   * <li>2 if successful user authentication with cookies stored</li>
-   * <li>3 if successful admin authentication with session stored</li>
-   * <li>4 if successful admin authentication with cookie stored</li>
-   * <li>-1 if unsuccessful authentication</li>
-   * </ul>
-   */
-  public int getAuthStatus(HttpServletRequest request) {
-    Cookie[] cookies = request.getCookies();
-    int authStatus = -1;
-
-    HttpSession session = request.getSession();
-    boolean hasUserSession = (session.getAttribute("user") != null
-        && !(((String) session.getAttribute("user")).isEmpty()));
-    boolean hasAdminSession = (session.getAttribute("admin") != null
-        && !(((String) session.getAttribute("admin")).isEmpty()));
-    boolean hasStaffSession = (session.getAttribute("staff") != null
-        && !(((String) session.getAttribute("staff")).isEmpty()));
-    if (hasUserSession) {
-      authStatus = 1;
-    } else if (hasAdminSession) {
-      authStatus = 2;
-    } else if (hasStaffSession) {
-      authStatus = 3;
-    } else if (cookies != null) {
-      for (Cookie cookie : cookies) {
-        if (cookie.getName().equals("user")) {
-          authStatus = 1;
-          break;
-        } else if (cookie.getName().equals("admin")) {
-          authStatus = 2;
-          break;
-        } else if (cookie.getName().equals("promotionManager")) {
-          authStatus = 3;
-          break;
-        } else if (cookie.getName().equals("staff")) {
-          authStatus = 4;
-          break;
-        }
-      }
-    }
-    return authStatus;
   }
 
   public void logout(HttpServletRequest request, HttpServletResponse response)

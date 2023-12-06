@@ -50,6 +50,7 @@ const toastMessages = {
   "error-update-category": "Could not update category. Please try again.",
   "error-delete-category": "Could not delete category. Please try again.",
   "error-add-clothes": "Could not add clothes. Please try again.",
+  "error-upload-image": "The uploaded file is either not an image or an unsupported image format. Please upload another image.",
   "error-update-clothes": "Could not update clothes. Please try again.",
   "error-delete-clothes": "Could not delete clothes. Please try again.",
   "error-add-order": "Could not add order. Please try again.",

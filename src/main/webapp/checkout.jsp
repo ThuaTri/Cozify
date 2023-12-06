@@ -70,7 +70,7 @@
             <p>Input fields marked with <span class="text-danger">*</span> are required</p>
             <div class="col-sm-6">
               <label for="firstName" class="form-label">First name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="" value="" required="">
+              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="" value="${sessionScope.user.firstName}" required="">
               <div class="invalid-feedback">
                 Valid first name is required.
               </div>
@@ -78,7 +78,7 @@
 
             <div class="col-sm-6">
               <label for="lastName" class="form-label">Last name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="" value="" required="">
+              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="" value="${sessionScope.user.lastName}" required="">
               <div class="invalid-feedback">
                 Valid last name is required.
               </div>
@@ -86,7 +86,7 @@
 
             <div class="col-12">
               <label for="phone" class="form-label">Phone number <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" id="phone" name="phone" placeholder="1234567890" required="">
+              <input type="number" class="form-control" id="phone" name="phone" placeholder="1234567890" value="${sessionScope.user.phoneNumber}" required="">
               <div class="invalid-feedback">
                 Please enter a valid phone number for shipping updates.
               </div>
@@ -94,7 +94,7 @@
 
             <div class="col-12">
               <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required="">
+              <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" value="${sessionScope.user.email}" required="">
               <div class="invalid-feedback">
                 Please enter a valid email address for shipping updates.
               </div>
@@ -103,7 +103,7 @@
             <div class="col-12">
               <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="address" name="address"
-                     placeholder="Apartment 1 (optional), 1234 Main St, Example State" required="">
+                     placeholder="Apartment 1 (optional), 1234 Main St, Example State" value="${sessionScope.user.address}" required="">
               <div class="invalid-feedback">
                 Please enter your shipping address.
               </div>

@@ -27,6 +27,20 @@
         <servlet-name>DashboardController</servlet-name>
         <servlet-class>controllers.DashboardController</servlet-class>
     </servlet>
+
+    <filter>
+        <filter-name>ImageProcessingFilter</filter-name>
+        <filter-class>filters.ImageProcessingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ImageProcessingFilter</filter-name>
+        <url-pattern>/dashboard/clothes/add</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ImageProcessingFilter</filter-name>
+        <url-pattern>/dashboard/clothes/update</url-pattern>
+    </filter-mapping>
+
     <filter>
         <filter-name>AuthenticationFilter</filter-name>
         <filter-class>filters.AuthenticationFilter</filter-class>
@@ -36,12 +50,24 @@
         <url-pattern>/</url-pattern>
     </filter-mapping>
     <filter-mapping>
+        <filter-name>ImageProcessingFilter</filter-name>
+        <url-pattern>/dashboard/clothes/add</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>ImageProcessingFilter</filter-name>
+        <url-pattern>/dashboard/clothes/update</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
         <filter-name>AuthenticationFilter</filter-name>
         <url-pattern>/home</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>AuthenticationFilter</filter-name>
-        <url-pattern>/cart</url-pattern>
+        <url-pattern>/logout</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthenticationFilter</filter-name>
+        <url-pattern>/cart/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>AuthenticationFilter</filter-name>
@@ -49,8 +75,18 @@
     </filter-mapping>
     <filter-mapping>
         <filter-name>AuthenticationFilter</filter-name>
-        <url-pattern>/dashboard.*</url-pattern>
+        <url-pattern>/dashboard/*</url-pattern>
     </filter-mapping>
+
+    <filter>
+        <filter-name>GlobalRequestAttributeFilter</filter-name>
+        <filter-class>filters.GlobalRequestAttributeFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>GlobalRequestAttributeFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
     <servlet-mapping>
         <servlet-name>HomeController</servlet-name>
         <url-pattern>/home</url-pattern>

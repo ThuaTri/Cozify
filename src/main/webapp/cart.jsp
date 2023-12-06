@@ -27,7 +27,7 @@
                 <div class="row mb-4 d-flex justify-content-between align-items-center">
                   <div class="col-md-2 col-lg-2 col-xl-2">
                     <img
-                        src="${pageContext.request.contextPath}/resources/media/img/clothes/${item.clothes.clothesId}"
+                        src="${pageContext.request.contextPath}/resources/media/img/clothes/${item.clothes.imgUrl}"
                         class="img-fluid rounded-3" alt="${item.clothes.clothesName}">
                   </div>
 
@@ -99,7 +99,7 @@
           <c:forEach items="${cart.orderItems}" var="item">
             <div class="d-flex justify-content-between mb-4">
               <h5 class="">
-                  ${item.clothes.clothesName} - ${item.clothes.size}
+                  ${item.clothes.clothesName} <c:if test="${!(item.clothes.size == 'null')}">- ${item.clothes.size}</c:if>
               </h5>
               <h5>$<fmt:formatNumber pattern="#,###.##">${item.subtotal}</fmt:formatNumber></h5>
             </div>

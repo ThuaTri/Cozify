@@ -28,6 +28,23 @@ public class ClothesDao extends GenericDao<Clothes> {
     }
     return list;
   }
+
+  public List<Clothes> getAllAvailable() {
+    list = null;
+    String sql = "select * from clothes where stock_quantity > 0 and is_hidden = 0";
+    try {
+      list = new ArrayList<>();
+      preparedStatement = connection.prepareStatement(sql);
+      resultSet = preparedStatement.executeQuery();
+      while (resultSet.next()) {
+        list.add(getClothesFromResultSetItem(resultSet));
+      }
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return list;
+  }
+
   /**
    * Retrieves all distinct clothes from the database.
    *
@@ -139,7 +156,7 @@ public class ClothesDao extends GenericDao<Clothes> {
   @Override
   public int add(Clothes clothes) {
     int result = 0;
-    String sql = "insert into clothes (clothes_name, price, stock_quantity, size, is_hidden, category_id) values (?, ?, ?, ?, ?, ?)";
+    String sql = "insert into clothes (clothes_name, price, discount, rating, stock_quantity, size, is_hidden, category_id) values (?, ?, ?, ?, ?, ?, ?, ?)";
     try {
       prepareStatementFromClothes(clothes, sql);
       result = preparedStatement.executeUpdate();
@@ -152,7 +169,7 @@ public class ClothesDao extends GenericDao<Clothes> {
   @Override
   public int update(Clothes clothes) {
     int result = 0;
-    String sql = "update clothes set clothes_name = ?, price = ?, stock_quantity = ?, size = ?, is_hidden = ?, category_id = ? where clothes_id = ?";
+    String sql = "update clothes set clothes_name = ?, price = ?, discount = ?, rating = ?, stock_quantity = ?, size = ?, is_hidden = ?, category_id = ? where clothes_id = ?";
     try {
       prepareStatementFromClothes(clothes, sql);
       preparedStatement.setInt(9, clothes.getClothesId());

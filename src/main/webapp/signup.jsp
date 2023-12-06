@@ -19,24 +19,31 @@
             <h3 class="mb-4">Sign Up</h3>
           </div>
         </div>
-        <form action="/signup" method="post" class="signin-form d-flex flex-column">
+        <form action="/signup" method="post" novalidate="" class="signin-form d-flex flex-column needs-validation">
           <div class="form-group mb-3">
             <label class="label" for="username">Username</label>
-            <input id="username" name="username" type="text" class="form-control" placeholder="" required="">
+            <input id="username" name="username" maxlength="50" type="text" class="form-control" placeholder="" required="">
+            <div class="invalid-feedback">
+              Valid username is required.
+            </div>
           </div>
           <div class="form-group mb-3">
             <label class="label" for="email">Email</label>
-            <input id="email" name="email" type="email" class="form-control" placeholder="" required="">
+            <input id="email" name="email" maxlength="255" type="email" class="form-control" placeholder="" required="">
+            <div class="invalid-feedback">
+              Valid email is required.
+            </div>
           </div>
           <div class="form-group mb-3">
             <label class="label" for="password">Password</label>
             <input id="password" name="password" type="password" class="form-control" placeholder="" required="">
+            <div class="invalid-feedback">
+              Valid password is required.
+            </div>
           </div>
-          <div class="form-group mt-3">
-            <button type="submit" class="form-control btn btn-primary rounded submit px-3">Sign in</button>
-          </div>
+          <button type="submit" class="btn btn-primary rounded submit mt-3 px-3">Sign in</button>
         </form>
-        <p class="text-center">Already have an account? <a data-toggle="tab" href="/login">Log in instead.</a></p>
+        <p class="text-center mt-3">Already have an account? <a data-toggle="tab" href="/login">Log in instead.</a></p>
       </div>
     </div>
   </div>

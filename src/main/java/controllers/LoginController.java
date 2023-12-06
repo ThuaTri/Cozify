@@ -32,7 +32,7 @@ public class LoginController extends HttpServlet {
 
     UserDao userDao = new UserDao();
     try {
-      // Check if the user with the same email already exists
+      // Check if the user login was successful
       if (userDao.login(email, password)) {
         User user = userDao.getUserByEmail(email);
 
@@ -54,6 +54,7 @@ public class LoginController extends HttpServlet {
         redirectToPage(request, response, user.getRole());
       } else {
         session.setAttribute("message", "error-login-credentials");
+        redirectToPage(request, response);
       }
     } catch (SQLException ex) {
       Logger.getLogger(SignupController.class.getName()).log(Level.SEVERE, null, ex);
@@ -85,7 +86,7 @@ public class LoginController extends HttpServlet {
 
   private void redirectToPage(HttpServletRequest request, HttpServletResponse response, String role)
       throws ServletException, IOException {
-    if (role.equals("admin")) {
+    if (role.equals("admin") || role.equals("staff")) {
       response.sendRedirect("/dashboard");
     } else if (role.equals("user")) {
       response.sendRedirect("/");

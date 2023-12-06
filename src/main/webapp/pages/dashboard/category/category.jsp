@@ -6,7 +6,7 @@
   <jsp:include page="../../../components/sections/head.jspf">
     <jsp:param name="titleDescription" value="Dashboard"/>
   </jsp:include>
-
+  <%@ include file="../../../components/imports/dataTablesCss.jspf" %>
 </head>
 <body>
 <!--  Body Wrapper -->
@@ -15,6 +15,7 @@
   <%@ include file="../../../components/sections/dashboard_sidebar.jspf" %>
   <%@ include file="../../../components/elements/toast.jspf" %>
 
+
   <!--  Main wrapper -->
   <div class="body-wrapper">
     <%@ include file="../../../components/sections/dashboard_header.jspf" %>
@@ -22,7 +23,7 @@
       <div class="card">
         <div class="card-body">
           <h5 class="card-title fw-semibold mb-4">Category Management</h5>
-          <table id="category-table">
+          <table id="category-table" class="table table-hover nowrap align-middle" style="width:100%">
             <a href="category/add" class="btn btn-sm btn-success py-1 my-2 me-2">
               Add Category
             </a>
@@ -32,7 +33,9 @@
               <th>Category name</th>
               <th>Item count</th>
               <th>Order count</th>
+              <th>State</th>
               <th>Total revenue</th>
+              <th>Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -51,7 +54,7 @@
                   </a>
                   <a href="${pageContext.request.contextPath}/dashboard/category/delete?id=${r.categoryId}"
                      class="btn btn-sm btn-danger py-1 m-1"
-                     onclick="confirm('Delete this category? This cannot be undone.')">
+                     onclick="return confirm('Disable this category? Note that this will also disable all clothes of this category.')">
                     Delete
                   </a>
                 </td>
@@ -65,5 +68,6 @@
   </div>
 </div>
 <%@ include file="../../../components/imports/javascript.jspf" %>
+<%@ include file="../../../components/imports/dataTablesJs.jspf" %>
 </body>
 </html>

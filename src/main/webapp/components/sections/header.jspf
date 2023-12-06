@@ -24,7 +24,7 @@
               <i class="ph-bold ph-user me-2"></i>
               ${sessionScope.user.username}
             </button>
-            <ul class="dropdown-menu text-small shadow">
+            <ul class="dropdown-menu dropdown-menu-end text-small shadow">
               <li><a class="dropdown-item" href="/logout">Log out</a></li>
             </ul>
           </div>

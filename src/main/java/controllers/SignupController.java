@@ -37,13 +37,13 @@ public class SignupController extends HttpServlet {
         session.setAttribute("message", "error-register-existing-email");
         response.sendRedirect("/signup");
       } else {
-        User user = new User(username, email, password, "user");
+        User user = new User(username, password, email, "user");
         userDao.add(user);
+        response.sendRedirect("/");
       }
     } catch (SQLException ex) {
       Logger.getLogger(SignupController.class.getName()).log(Level.SEVERE, null, ex);
       session.setAttribute("message", "error-register");
-    } finally {
       response.sendRedirect("/signup");
     }
   }

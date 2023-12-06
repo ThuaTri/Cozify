@@ -3,6 +3,7 @@ package models;
 import daos.CategoryDao;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 public class Clothes {
   // clothes_id, Auto-incremented, primary key, not null
@@ -39,6 +40,20 @@ public class Clothes {
   public Clothes() {
   }
 
+  public Clothes(String clothesName, BigDecimal price, int discount, int rating, Integer stockQuantity, String size, Boolean isHidden, int categoryId) {
+    this.setClothesName(clothesName);
+    this.price = price;
+    this.discount = discount;
+    this.rating = rating;
+    this.stockQuantity = stockQuantity;
+    this.size = size;
+    this.isHidden = isHidden;
+    this.categoryId = categoryId;
+
+    CategoryDao categoryDao = new CategoryDao();
+    this.categoryName = categoryDao.getById(categoryId).getCategoryName();
+  }
+
   public Clothes(int clothesId, String clothesName, BigDecimal price, int discount, int rating, Integer stockQuantity, String size, Boolean isHidden, int categoryId) {
     this.clothesId = clothesId;
     this.setClothesName(clothesName);
@@ -49,6 +64,7 @@ public class Clothes {
     this.size = size;
     this.isHidden = isHidden;
     this.categoryId = categoryId;
+
     CategoryDao categoryDao = new CategoryDao();
     this.categoryName = categoryDao.getById(categoryId).getCategoryName();
   }
@@ -68,7 +84,11 @@ public class Clothes {
   public void setClothesName(String clothesName) {
     this.clothesName = clothesName;
     String fileName = clothesName.replaceAll(" ", "-").toLowerCase() + ".jpg";
-    this.setImgUrl(fileName);
+
+    // Set image url with cache busting parameter
+    // This is done to force the browser to download the image from the server, especially after image add or update
+    String cacheBustingParam = UUID.randomUUID().toString();
+    this.setImgUrl(fileName + "?v=" + cacheBustingParam);
   }
 
   public BigDecimal getPrice() {

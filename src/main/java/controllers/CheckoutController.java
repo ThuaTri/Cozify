@@ -23,6 +23,13 @@ public class CheckoutController extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    User user = (User) session.getAttribute("user");
+    if (user == null) {
+      response.sendRedirect("/login");
+      return;
+    }
+
     request.getRequestDispatcher("/checkout.jsp").forward(request, response);
   }
 
@@ -106,7 +113,7 @@ public class CheckoutController extends HttpServlet {
     }
 
     session.removeAttribute("cart");
-    session.setAttribute("message", "success-order.");
+    session.setAttribute("message", "success-order");
     response.sendRedirect("/");
   }
 }

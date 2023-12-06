@@ -110,7 +110,7 @@ public class Order {
   }
 
   public void setPhoneNumber(String phoneNumber) {
-    this.phoneNumber = phoneNumber;
+    this.phoneNumber = phoneNumber.trim();
   }
 
   public String getFirstName() {

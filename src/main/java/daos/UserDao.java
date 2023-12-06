@@ -71,6 +71,8 @@ public class UserDao extends GenericDao<User> {
     user.setRole(resultSet.getString("role"));
     user.setFirstName(resultSet.getString("first_name"));
     user.setLastName(resultSet.getString("last_name"));
+    user.setPhoneNumber(resultSet.getString("phone_number"));
+    user.setAddress(resultSet.getString("address"));
     return user;
   }
 
@@ -90,10 +92,12 @@ public class UserDao extends GenericDao<User> {
   @Override
   public int update(User user) {
     int result = 0;
-    String sql = "update [user] set username = ?, password = ?, email = ?, role = ?, first_name = ?, last_name = ? where user_id = ?";
+    String sql = "update [user] set username = ?, [password] = ?, email = ?, [role] = ?, first_name = ?, last_name = ?, phone_number = ?, address = ? where [user_id] = ?";
     try {
       prepareStatementFromUser(user, sql);
-      preparedStatement.setInt(7, user.getUserId());
+      preparedStatement.setString(7, user.getPhoneNumber());
+      preparedStatement.setString(8, user.getAddress());
+      preparedStatement.setInt(9, user.getUserId());
       result = preparedStatement.executeUpdate();
     } catch (SQLException e) {
       handleSQLException(e);

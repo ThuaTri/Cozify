@@ -33,6 +33,26 @@ public class CategoryDao extends GenericDao<Category> {
     return list;
   }
 
+  public List<Category> getAllAvailable() {
+    list = null;
+    String sql = "select * from category where is_hidden = 0";
+    try {
+      list = new ArrayList<>();
+      preparedStatement = connection.prepareStatement(sql);
+      resultSet = preparedStatement.executeQuery();
+      while (resultSet.next()) {
+        Category category = new Category();
+        category.setCategoryId(resultSet.getInt("category_id"));
+        category.setCategoryName(resultSet.getString("category_name"));
+        category.setIsHidden(resultSet.getBoolean("is_hidden"));
+        list.add(category);
+      }
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return list;
+  }
+
   @Override
   public Category getById(int id) {
     String sql = "select * from category where category_id = ?";
@@ -86,7 +106,6 @@ public class CategoryDao extends GenericDao<Category> {
        "           select  distinct clothes_id, category_id, price, discount from " +
        "            clothes where size = 'M' or size = '8' or size is null" +
        "          ) cl on c.category_id = cl.category_id " +
-
        "         left join order_item oi on cl.clothes_id = oi.clothes_id " +
        "         left join [order] o on oi.order_id = o.order_id " +
        "group by c.category_id, c.category_name, c.is_hidden;";
