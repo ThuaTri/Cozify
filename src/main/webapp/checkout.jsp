@@ -86,7 +86,7 @@
 
             <div class="col-12">
               <label for="phone" class="form-label">Phone number <span class="text-danger">*</span></label>
-              <input type="number" class="form-control" id="phone" name="phone" placeholder="1234567890" value="${sessionScope.user.phoneNumber}" required="">
+              <input type="number" class="form-control" id="phone" name="phone" placeholder="1234567890" value="${sessionScope.user.phoneNumber}" maxlength="13" required="">
               <div class="invalid-feedback">
                 Please enter a valid phone number for shipping updates.
               </div>
@@ -129,14 +129,14 @@
 
           <div class="my-3">
             <div class="form-check">
-              <input id="cod" name="paymentMethod" type="radio" class="form-check-input" checked="" required="">
+              <input id="cod" name="paymentMethod" type="radio" class="form-check-input" value="1" checked="" required="">
               <label class="form-check-label" for="cod">Cash on delivery</label>
             </div>
           </div>
 
           <hr class="my-4">
 
-          <button class="w-100 btn btn-primary btn-lg" type="submit">Place order</button>
+          <button class="w-100 btn btn-primary btn-lg ${cart.getNumberOfItems() > 0 ? "" : "disabled"}" type="submit">Place order</button>
         </form>
       </div>
     </div>

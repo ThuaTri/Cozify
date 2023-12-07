@@ -30,6 +30,23 @@ public class OrderDao extends GenericDao<Order> {
     return list;
   }
 
+  public List<Order> getAllByUserId(int userId) {
+    list = null;
+    String sql = "select * from [order] where user_id = ?";
+    try {
+      list = new ArrayList<>();
+      preparedStatement = connection.prepareStatement(sql);
+      preparedStatement.setInt(1, userId);
+      resultSet = preparedStatement.executeQuery();
+      while (resultSet.next()) {
+        list.add(getOrderFromResultSetItem(resultSet));
+      }
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return list;
+  }
+
   @Override
   public Order getById(int id) {
     String sql = "select * from [order] where order_id = ?";
@@ -63,9 +80,10 @@ public class OrderDao extends GenericDao<Order> {
   private Order getOrderFromResultSetItem(ResultSet resultSet) throws SQLException {
     Order order = new Order();
     order.setOrderId(resultSet.getInt("order_id"));
+    order.setUserId(resultSet.getInt("user_id"));
     order.setOrderTime(resultSet.getTimestamp("order_time"));
     order.setStatus(resultSet.getString("status"));
-    order.setPaymentMethod(resultSet.getString("payment_method"));
+    order.setPaymentMethodId(resultSet.getByte("payment_method_id"));
     order.setFirstName(resultSet.getString("first_name"));
     order.setLastName(resultSet.getString("last_name"));
     order.setAddress(resultSet.getString("address"));
@@ -79,7 +97,7 @@ public class OrderDao extends GenericDao<Order> {
   @Override
   public int add(Order order) {
     int result = 0;
-    String sql = "insert into [order] (payment_method, first_name, last_name, [address], phone_number, email, total, note) values (?, ?, ?, ?, ?, ?, ?, ?)";
+    String sql = "insert into [order] (user_id, payment_method_id, first_name, last_name, [address], phone_number, email, total, note) values (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     try {
       prepareStatementFromOrder(order, sql);
       result = preparedStatement.executeUpdate();
@@ -92,10 +110,10 @@ public class OrderDao extends GenericDao<Order> {
   @Override
   public int update(Order order) {
     int result = 0;
-    String sql = "update [order] set payment_method = ?, first_name = ?, last_name = ?, [address] = ?, phone_number = ?, email = ?, total = ?, note = ? where order_id = ?";
+    String sql = "update [order] set user_id = ?, payment_method_id = ?, first_name = ?, last_name = ?, [address] = ?, phone_number = ?, email = ?, total = ?, note = ? where order_id = ?";
     try {
       prepareStatementFromOrder(order, sql);
-      preparedStatement.setInt(9, order.getOrderId());
+      preparedStatement.setInt(10, order.getOrderId());
       result = preparedStatement.executeUpdate();
     } catch (SQLException e) {
       handleSQLException(e);
@@ -105,20 +123,34 @@ public class OrderDao extends GenericDao<Order> {
 
   private void prepareStatementFromOrder(Order order, String sql) throws SQLException {
     preparedStatement = connection.prepareStatement(sql);
-    preparedStatement.setString(1, order.getPaymentMethod());
-    preparedStatement.setString(2, order.getFirstName());
-    preparedStatement.setString(3, order.getLastName());
-    preparedStatement.setString(4, order.getAddress());
-    preparedStatement.setString(5, order.getPhoneNumber());
-    preparedStatement.setString(6, order.getEmail());
-    preparedStatement.setBigDecimal(7, order.getTotal());
-    preparedStatement.setString(8, order.getNote());
+    preparedStatement.setInt(1, order.getUserId());
+    preparedStatement.setByte(2, order.getPaymentMethodId());
+    preparedStatement.setString(3, order.getFirstName());
+    preparedStatement.setString(4, order.getLastName());
+    preparedStatement.setString(5, order.getAddress());
+    preparedStatement.setString(6, order.getPhoneNumber());
+    preparedStatement.setString(7, order.getEmail());
+    preparedStatement.setBigDecimal(8, order.getTotal());
+    preparedStatement.setString(9, order.getNote());
   }
 
   @Override
   public int delete(int id) {
     int result = 0;
-    String sql = "delete from order where order_id = ?";
+    String sql = "delete from [order] where order_id = ?";
+    try {
+      preparedStatement = connection.prepareStatement(sql);
+      preparedStatement.setInt(1, id);
+      result = preparedStatement.executeUpdate();
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return result;
+  }
+
+  public int cancel(int id) {
+    int result = 0;
+    String sql = "update [order] set status = 'cancelled' where order_id = ?";
     try {
       preparedStatement = connection.prepareStatement(sql);
       preparedStatement.setInt(1, id);

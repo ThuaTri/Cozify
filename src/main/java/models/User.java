@@ -1,5 +1,7 @@
 package models;
 
+import daos.RoleDao;
+
 import java.io.Serializable;
 
 public class User implements Serializable {
@@ -17,6 +19,7 @@ public class User implements Serializable {
 
     // role, not null
     private String role;
+    private byte roleId;
 
     // first_name
     private String firstName;
@@ -33,21 +36,11 @@ public class User implements Serializable {
     public User() {
     }
 
-    public User(String username, String password, String email, String role) {
+    public User(String username, String password, String email, byte roleId) {
         this.username = username;
         this.password = password;
         this.email = email;
-        this.role = role;
-    }
-
-    public User(int userId, String username, String password, String email, String role, String firstName, String lastName) {
-        this.userId = userId;
-        this.username = username;
-        this.password = password;
-        this.email = email;
-        this.role = role;
-        this.firstName = firstName;
-        this.lastName = lastName;
+        this.setRoleId(roleId);
     }
 
     public int getUserId() {
@@ -80,6 +73,17 @@ public class User implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public byte getRoleId() {
+        return roleId;
+    }
+
+    public void setRoleId(byte roleId) {
+        this.roleId = roleId;
+        RoleDao roleDao = new RoleDao();
+        Role role = roleDao.getById(roleId);
+        this.setRole(role.getRole());
     }
 
     public String getRole() {

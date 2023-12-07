@@ -56,6 +56,7 @@ const toastMessages = {
   "error-add-order": "Could not add order. Please try again.",
   "error-update-order": "Could not update order. Please try again.",
   "error-delete-order": "Could not delete order. Please try again.",
+  "error-empty-cart": "Could not create order because the cart is empty.",
   "error-add-staff": "Could not add staff. Please try again.",
   "error-update-staff": "Could not update staff. Please try again.",
   "error-delete-staff": "Could not delete staff. Please try again.",

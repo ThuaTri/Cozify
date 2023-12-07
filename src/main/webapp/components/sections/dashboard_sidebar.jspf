@@ -16,49 +16,64 @@
     <!-- Sidebar navigation-->
     <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
       <ul id="sidebarnav">
-        <li class="nav-small-cap">
-          <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-          <span class="hide-menu">Products</span>
-        </li>
-        <li class="sidebar-item">
-          <a class="sidebar-link" href="/dashboard/category" aria-expanded="false">
+
+        <c:if test="${sessionScope.user.role == 'admin' || sessionScope.user.role == 'staff'}">
+          <li class="nav-small-cap">
+            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+            <span class="hide-menu">Products</span>
+          </li>
+        </c:if>
+
+        <c:if test="${sessionScope.user.role == 'admin' || sessionScope.user.role == 'staff'}">
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="${pageContext.request.contextPath}/dashboard/category" aria-expanded="false">
                 <span>
                   <i class="ph-bold ph-squares-four"></i>
                 </span>
-            <span class="hide-menu">Categories</span>
-          </a>
-        </li>
-        <li class="sidebar-item">
-          <a class="sidebar-link" href="/dashboard/clothes" aria-expanded="false">
+              <span class="hide-menu">Categories</span>
+            </a>
+          </li>
+        </c:if>
+
+        <c:if test="${sessionScope.user.role == 'admin' || sessionScope.user.role == 'staff'}">
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="${pageContext.request.contextPath}/dashboard/clothes" aria-expanded="false">
                 <span>
-                  <i class="ph-bold ph-t-shirt"></i></i>
+                  <i class="ph-bold ph-t-shirt"></i>
                 </span>
-            <span class="hide-menu">Clothes</span>
-          </a>
-        </li>
-        <li class="nav-small-cap">
-          <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
-          <span class="hide-menu">Customers</span>
-        </li>
+              <span class="hide-menu">Clothes</span>
+            </a>
+          </li>
+        </c:if>
+
+        <c:if test="${sessionScope.user.role == 'admin' || sessionScope.user.role == 'staff'}">
+          <li class="nav-small-cap">
+            <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
+            <span class="hide-menu">Customers</span>
+          </li>
+        </c:if>
+
         <c:if test="${sessionScope.user.role == 'admin'}">
           <li class="sidebar-item">
-            <a class="sidebar-link" href="/dashboard/user" aria-expanded="false">
+            <a class="sidebar-link" href="${pageContext.request.contextPath}/dashboard/user" aria-expanded="false">
                 <span>
-                  <i class="ph-bold ph-users"></i></i>
+                  <i class="ph-bold ph-users"></i>
                 </span>
               <span class="hide-menu">Users</span>
             </a>
           </li>
         </c:if>
 
-        <li class="sidebar-item">
-          <a class="sidebar-link" href="/dashboard/order" aria-expanded="false">
+        <c:if test="${sessionScope.user.role == 'admin' || sessionScope.user.role == 'staff'}">
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="${pageContext.request.contextPath}/dashboard/order" aria-expanded="false">
                 <span>
-                  <i class="ph-bold ph-clipboard-text"></i></i>
+                  <i class="ph-bold ph-clipboard-text"></i>
                 </span>
-            <span class="hide-menu">Orders</span>
-          </a>
-        </li>
+              <span class="hide-menu">Orders</span>
+            </a>
+          </li>
+        </c:if>
 
         <c:if test="${sessionScope.user.role == 'admin'}">
           <li class="nav-small-cap">
@@ -66,11 +81,23 @@
             <span class="hide-menu">Personnel</span>
           </li>
           <li class="sidebar-item">
-            <a class="sidebar-link" href="/dashboard/staff" aria-expanded="false">
+            <a class="sidebar-link" href="${pageContext.request.contextPath}/dashboard/staff" aria-expanded="false">
                 <span>
-                  <i class="ph-bold ph-users-four"></i></i>
+                  <i class="ph-bold ph-users-four"></i>
                 </span>
               <span class="hide-menu">Staffs</span>
+            </a>
+          </li>
+        </c:if>
+
+        <c:if test="${sessionScope.user.role == 'user'}">
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="${pageContext.request.contextPath}/dashboard/order-history"
+               aria-expanded="false">
+                <span>
+                   <i class="ph-bold ph-clipboard-text"></i>
+                </span>
+              <span class="hide-menu">Order history</span>
             </a>
           </li>
         </c:if>

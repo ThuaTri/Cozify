@@ -28,8 +28,8 @@
               <div class="mb-3">
                 <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
                 <select class="form-select" id="role" name="role" required="">
-                  <option value="admin">Admin</option>
-                  <option value="staff">Staff</option>
+                  <option value="1">Admin</option>
+                  <option value="2">Staff</option>
                 </select>
               </div>
               <div class="mb-3">

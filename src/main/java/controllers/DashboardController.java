@@ -31,8 +31,20 @@ public class DashboardController extends HttpServlet {
     String path = request.getRequestURI();
     // Redirect to pages depending on path's starting with /dashboard
 
+    // Get user's role
+    String role = "";
+    HttpSession session = request.getSession();
+    if (session != null) {
+      role = ((User) session.getAttribute("user")).getRole();
+    }
     if (path.equals("/dashboard")) {
-      response.sendRedirect("/dashboard/category");
+      switch (role) {
+        case "user" -> response.sendRedirect("/dashboard/order-history");
+        case "admin", "staff" -> response.sendRedirect("/dashboard/category");
+        default -> response.sendRedirect("/");
+      }
+    } else if (path.startsWith("/dashboard/order-history")) {
+      redirectToOrderHistory(request, response, "get");
     } else if (path.startsWith("/dashboard/category")) {
       redirectToCategory(request, response, "get");
     } else if (path.startsWith("/dashboard/clothes")) {
@@ -65,6 +77,24 @@ public class DashboardController extends HttpServlet {
       redirectToOrder(request, response, "post");
     } else if (path.startsWith("/dashboard/staff")) {
       redirectToStaff(request, response, "post");
+    }
+  }
+
+  private void redirectToOrderHistory(HttpServletRequest request, HttpServletResponse response, String method)
+      throws ServletException, IOException {
+    HttpSession session = request.getSession();
+
+    // Get user's ID
+    int userId = 0;
+    if (session != null) {
+      userId = ((User) session.getAttribute("user")).getUserId();
+    }
+    String path = request.getRequestURI();
+    if (path.equals("/dashboard/order-history")) {
+      OrderDao orderDao = new OrderDao();
+      List<Order> orders = orderDao.getAllByUserId(userId);
+      request.setAttribute("orders", orders);
+      request.getRequestDispatcher("/pages/dashboard/order_history.jsp").forward(request, response);
     }
   }
 
@@ -222,7 +252,7 @@ public class DashboardController extends HttpServlet {
     String path = request.getRequestURI();
     if (path.equals("/dashboard/user")) {
       UserDao userDao = new UserDao();
-      List<User> users = userDao.getAllByRole("user");
+      List<User> users = userDao.getAllByRole((byte) 3);
       request.setAttribute("users", users);
       request.getRequestDispatcher("/pages/dashboard/user/user.jsp").forward(request, response);
     } else if (path.startsWith("/dashboard/user/update")) {
@@ -355,6 +385,16 @@ public class DashboardController extends HttpServlet {
         request.setAttribute("statuses", statuses);
         request.getRequestDispatcher("/pages/dashboard/order/order_update.jsp").forward(request, response);
       }
+    } else if (path.startsWith("/dashboard/order/cancel")) {
+      int orderId = Integer.parseInt(request.getParameter("id"));
+      OrderDao orderDao = new OrderDao();
+      try {
+        orderDao.cancel(orderId);
+        session.setAttribute("message", "success-cancel-order");
+      } catch (RuntimeException e) {
+        session.setAttribute("message", "error-cancel-order");
+      }
+      response.sendRedirect("/dashboard/order-history");
     }
   }
 
@@ -364,15 +404,15 @@ public class DashboardController extends HttpServlet {
     String path = request.getRequestURI();
     if (path.equals("/dashboard/staff")) {
       UserDao userDao = new UserDao();
-      List<User> staffs = userDao.getAllByRole("admin");
-      staffs.addAll(userDao.getAllByRole("staff"));
+      List<User> staffs = userDao.getAllByRole((byte) 1);
+      staffs.addAll(userDao.getAllByRole((byte) 2));
       request.setAttribute("staffs", staffs);
       request.getRequestDispatcher("/pages/dashboard/staff/staff.jsp").forward(request, response);
     } else if (path.startsWith("/dashboard/staff/add")) {
       if (method.equals("post")) {
         String username = request.getParameter("username");
         String email = request.getParameter("email");
-        String role = request.getParameter("role");
+        byte roleId = Byte.parseByte(request.getParameter("role"));
         String password = getMd5(request.getParameter("password"));
 
         // Optional fields
@@ -393,7 +433,7 @@ public class DashboardController extends HttpServlet {
         User user = new User();
         user.setUsername(username);
         user.setEmail(email);
-        user.setRole(role);
+        user.setRoleId(roleId);
         user.setPassword(password);
 
         if (!firstName.isBlank()) {
@@ -425,7 +465,7 @@ public class DashboardController extends HttpServlet {
         int userId = Integer.parseInt(request.getParameter("id"));
         String username = request.getParameter("username");
         String email = request.getParameter("email");
-        String role = request.getParameter("role");
+        byte roleId = Byte.parseByte(request.getParameter("role"));
 
         // Optional fields
         String password = request.getParameter("password") != null
@@ -448,7 +488,7 @@ public class DashboardController extends HttpServlet {
         User user = userDao.getById(userId);
         user.setUsername(username);
         user.setEmail(email);
-        user.setRole(role);
+        user.setRoleId(roleId);
         if (!password.isBlank()) {
           user.setPassword(password);
         }

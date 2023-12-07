@@ -20,6 +20,12 @@ GO
 USE cozify;
 GO
 
+CREATE TABLE role
+(
+    role_id TINYINT IDENTITY PRIMARY KEY NOT NULL,
+    role    VARCHAR(50)                  NOT NULL, -- 'admin' or 'user' or 'staff'
+)
+
 -- Create the Users table
 CREATE TABLE [user]
 (
@@ -27,11 +33,11 @@ CREATE TABLE [user]
     username     NVARCHAR(50)             NOT NULL,
     [password]   CHAR(32)                 NOT NULL,
     email        NVARCHAR(255)            NOT NULL,
-    [role]       VARCHAR(50)              NOT NULL, -- 'admin' or 'user' or 'staff'
+    role_id      TINYINT                  NOT NULL REFERENCES role (role_id),
     -- These attributes are not mandatory upon account creation
     first_name   NVARCHAR(50),
     last_name    NVARCHAR(50),
-    phone_number VARCHAR(13),                       -- excluding country code, most countries' phone number length do not exceed 13
+    phone_number VARCHAR(13), -- excluding country code, most countries' phone number length do not exceed 13
     address      NVARCHAR(255)
 );
 
@@ -57,20 +63,27 @@ CREATE TABLE clothes
     category_id    INT                      NOT NULL REFERENCES category (category_id)
 );
 
+CREATE TABLE payment_method
+(
+    payment_method_id TINYINT IDENTITY PRIMARY KEY NOT NULL,
+    payment_method    NVARCHAR(50)                 NOT NULL -- cod
+)
+
 -- Create the Orders table
 CREATE TABLE [order]
 (
-    order_id       INT IDENTITY PRIMARY KEY NOT NULL,
-    order_time     DATETIME     DEFAULT GETDATE(),
-    status         NVARCHAR(50) DEFAULT 'pending',    -- pending, packaging, delivering, delivered, cancelled
-    payment_method NVARCHAR(50)             NOT NULL, -- cod
-    first_name     NVARCHAR(50)             NOT NULL,
-    last_name      NVARCHAR(50)             NOT NULL,
-    [address]      NVARCHAR(255)            NOT NULL,
-    phone_number   CHAR(11)                 NOT NULL,
-    email          NVARCHAR(255)            NOT NULL,
-    total          DECIMAL(10, 2)           NOT NULL,
-    note           NVARCHAR(1000)
+    order_id          INT IDENTITY PRIMARY KEY NOT NULL,
+    user_id           INT                      NOT NULL REFERENCES [user] (user_id),
+    order_time        DATETIME     DEFAULT GETDATE(),
+    status            NVARCHAR(50) DEFAULT 'pending', -- pending, packaging, delivering, delivered, cancelled
+    payment_method_id TINYINT                  NOT NULL REFERENCES payment_method (payment_method_id),
+    first_name        NVARCHAR(50)             NOT NULL,
+    last_name         NVARCHAR(50)             NOT NULL,
+    [address]         NVARCHAR(255)            NOT NULL,
+    phone_number      CHAR(11)                 NOT NULL,
+    email             NVARCHAR(255)            NOT NULL,
+    total             DECIMAL(10, 2)           NOT NULL,
+    note              NVARCHAR(1000)
 );
 
 -- Create the OrderItems table
@@ -134,17 +147,22 @@ GO;
 USE cozify;
 GO
 
+INSERT INTO role (role)
+VALUES ('admin'),
+       ('staff'),
+       ('user');
+
 -- Insert sample data into the Users table
-INSERT INTO [user] (username, [password], email, [role], first_name, last_name)
-VALUES ('john', CONVERT(CHAR(32), HashBytes('MD5', 'password123'), 2), 'john@gmail.com', 'user', 'John', 'Doe'),
-       ('jane', CONVERT(CHAR(32), HashBytes('MD5', 'password456'), 2), 'jane@gmail.com', 'admin', 'Jane', 'Smith'),
-       ('admin1', CONVERT(CHAR(32), HashBytes('MD5', 'admin123'), 2), 'admin1@gmail.com', 'admin', 'Admin', 'One'),
-       ('staff1', CONVERT(CHAR(32), HashBytes('MD5', 'staff123'), 2), 'staff1@gmail.com', 'staff', 'Staff', 'One'),
-       ('staff2', CONVERT(CHAR(32), HashBytes('MD5', 'staff123'), 2), 'staff2@gmail.com', 'staff', 'Staff', 'Two'),
-       ('staff3', CONVERT(CHAR(32), HashBytes('MD5', 'staff123'), 2), 'staff3@gmail.com', 'staff', 'Staff', 'Three'),
-       ('user1', CONVERT(CHAR(32), HashBytes('MD5', 'user123'), 2), 'user1@gmail.com', 'user', 'User', 'One'),
-       ('user2', CONVERT(CHAR(32), HashBytes('MD5', 'user123'), 2), 'user2@gmail.com', 'user', 'User', 'Two'),
-       ('user3', CONVERT(CHAR(32), HashBytes('MD5', 'user123'), 2), 'user3@gmail.com', 'user', 'User', 'Three');
+INSERT INTO [user] (username, [password], email, role_id, first_name, last_name)
+VALUES ('john', CONVERT(CHAR(32), HashBytes('MD5', 'password123'), 2), 'john@gmail.com', 3, 'John', 'Doe'),
+       ('jane', CONVERT(CHAR(32), HashBytes('MD5', 'password456'), 2), 'jane@gmail.com', 1, 'Jane', 'Smith'),
+       ('admin1', CONVERT(CHAR(32), HashBytes('MD5', 'admin123'), 2), 'admin1@gmail.com', 1, 'Admin', 'One'),
+       ('staff1', CONVERT(CHAR(32), HashBytes('MD5', 'staff123'), 2), 'staff1@gmail.com', 2, 'Staff', 'One'),
+       ('staff2', CONVERT(CHAR(32), HashBytes('MD5', 'staff123'), 2), 'staff2@gmail.com', 2, 'Staff', 'Two'),
+       ('staff3', CONVERT(CHAR(32), HashBytes('MD5', 'staff123'), 2), 'staff3@gmail.com', 2, 'Staff', 'Three'),
+       ('user1', CONVERT(CHAR(32), HashBytes('MD5', 'user123'), 2), 'user1@gmail.com', 3, 'User', 'One'),
+       ('user2', CONVERT(CHAR(32), HashBytes('MD5', 'user123'), 2), 'user2@gmail.com', 3, 'User', 'Two'),
+       ('user3', CONVERT(CHAR(32), HashBytes('MD5', 'user123'), 2), 'user3@gmail.com', 3, 'User', 'Three');
 
 -- Insert sample data into the Categories table
 INSERT INTO category (category_name, is_hidden)
@@ -295,38 +313,45 @@ VALUES
 
     ('Leather Wallet', 34.99, 0, 5, 20, NULL, 0, 6);
 
+INSERT INTO payment_method (payment_method)
+VALUES ('cod'),
+       ('debit'),
+       ('credit');
+
+
 -- Inserting sample data into the updated Order table
-INSERT INTO [order] (order_time, status, payment_method, first_name, last_name, [address], phone_number, email, total,
+INSERT INTO [order] (user_id, order_time, status, payment_method_id, first_name, last_name, [address], phone_number, email,
+                     total,
                      note)
 VALUES
     -- Pending
-    ('2022-01-05 12:00:00', 'Pending', 'COD', 'John', 'Doe', '1234 Street, City, State', '1234567890',
+    (1, '2022-01-05 12:00:00', 'pending', 1, 'John', 'Doe', '1234 Street, City, State', '1234567890',
      'johndoe@gmail.com', 99.99, 'Please deliver before 6 PM'),
-    ('2022-01-07 13:00:00', 'Pending', 'COD', 'Jane', 'Smith', '1234 Lane, City, State', '2345678901',
+    (2, '2022-01-07 13:00:00', 'pending', 1, 'Jane', 'Smith', '1234 Lane, City, State', '2345678901',
      'janesmith@gmail.com', 89.99, 'Leave at the front door'),
 
     -- Packaging
-    ('2022-01-10 14:00:00', 'Packaging', 'COD', 'John', 'Doe', '1234 Road, City, State', '3456789012',
+    (1, '2022-01-10 14:00:00', 'packaging', 1, 'John', 'Doe', '1234 Road, City, State', '3456789012',
      'johndoe@gmail.com', 79.99, null),
-    ('2022-01-12 15:00:00', 'Packaging', 'COD', 'Jane', 'Smith', '1234 Blvd, City, State', '4567890123',
+    (2, '2022-01-12 15:00:00', 'packaging', 1, 'Jane', 'Smith', '1234 Blvd, City, State', '4567890123',
      'janesmith@gmail.com', 69.99, null),
 
     -- Delivering
-    ('2022-01-15 16:00:00', 'Delivering', 'COD', 'John', 'Doe', '1234 Ave, City, State', '5678901234',
+    (1, '2022-01-15 16:00:00', 'delivering', 1, 'John', 'Doe', '1234 Ave, City, State', '5678901234',
      'johndoe@gmail.com', 59.99, 'Call upon arrival'),
-    ('2022-01-17 17:00:00', 'Delivering', 'COD', 'Jane', 'Smith', '1234 St, City, State', '6789012345',
+    (2, '2022-01-17 17:00:00', 'delivering', 1, 'Jane', 'Smith', '1234 St, City, State', '6789012345',
      'janesmith@gmail.com', 49.99, 'No need to ring the bell'),
 
     -- Delivered
-    ('2022-01-20 18:00:00', 'Delivered', 'COD', 'John', 'Doe', '1234 Ln, City, State', '7890123456',
+    (1, '2022-01-20 18:00:00', 'delivered', 1, 'John', 'Doe', '1234 Ln, City, State', '7890123456',
      'johndoe@gmail.com', 39.99, NULL),
-    ('2022-01-22 19:00:00', 'Delivered', 'COD', 'Jane', 'Smith', '1234 Rd, City, State', '8901234567',
+    (2, '2022-01-22 19:00:00', 'delivered', 1, 'Jane', 'Smith', '1234 Rd, City, State', '8901234567',
      'janesmith@gmail.com', 29.99, NULL),
 
     -- Cancelled
-    ('2022-01-25 20:00:00', 'Cancelled', 'COD', 'John', 'Doe', '1234 Blvd, City, State', '9012345678',
+    (1, '2022-01-25 20:00:00', 'cancelled', 1, 'John', 'Doe', '1234 Blvd, City, State', '9012345678',
      'johndoe@gmail.com', 19.99, NULL),
-    ('2022-01-27 21:00:00', 'Cancelled', 'COD', 'Jane', 'Smith', '1234 Ave, City, State', '0123456789',
+    (2, '2022-01-27 21:00:00', 'cancelled', 1, 'Jane', 'Smith', '1234 Ave, City, State', '0123456789',
      'janesmith@gmail.com', 9.99, NULL);
 
 -- Inserting sample data into the OrderItem table

@@ -37,7 +37,7 @@ public class SignupController extends HttpServlet {
         session.setAttribute("message", "error-register-existing-email");
         response.sendRedirect("/signup");
       } else {
-        User user = new User(username, password, email, "user");
+        User user = new User(username, password, email, (byte) 3);
         userDao.add(user);
         response.sendRedirect("/");
       }

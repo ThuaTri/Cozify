@@ -29,13 +29,13 @@ public class UserDao extends GenericDao<User> {
     return list;
   }
 
-  public List<User> getAllByRole(String role) {
+  public List<User> getAllByRole(byte roleId) {
     list = null;
-    String sql = "select * from [user] where role = ?";
+    String sql = "select * from [user] where role_id = ?";
     try {
       list = new ArrayList<>();
       preparedStatement = connection.prepareStatement(sql);
-      preparedStatement.setString(1, role);
+      preparedStatement.setByte(1, roleId);
       resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         list.add(getUserFromResultSetItem(resultSet));
@@ -68,7 +68,7 @@ public class UserDao extends GenericDao<User> {
     user.setUsername(resultSet.getString("username"));
     user.setPassword(resultSet.getString("password"));
     user.setEmail(resultSet.getString("email"));
-    user.setRole(resultSet.getString("role"));
+    user.setRoleId(resultSet.getByte("role_id"));
     user.setFirstName(resultSet.getString("first_name"));
     user.setLastName(resultSet.getString("last_name"));
     user.setPhoneNumber(resultSet.getString("phone_number"));
@@ -79,7 +79,7 @@ public class UserDao extends GenericDao<User> {
   @Override
   public int add(User user) {
     int result = 0;
-    String sql = "insert into [user] (username, password, email, role, first_name, last_name) values (?, ?, ?, ?, ?, ?)";
+    String sql = "insert into [user] (username, password, email, role_id, first_name, last_name) values (?, ?, ?, ?, ?, ?)";
     try {
       prepareStatementFromUser(user, sql);
       result = preparedStatement.executeUpdate();
@@ -92,7 +92,7 @@ public class UserDao extends GenericDao<User> {
   @Override
   public int update(User user) {
     int result = 0;
-    String sql = "update [user] set username = ?, [password] = ?, email = ?, [role] = ?, first_name = ?, last_name = ?, phone_number = ?, address = ? where [user_id] = ?";
+    String sql = "update [user] set username = ?, [password] = ?, email = ?, role_id = ?, first_name = ?, last_name = ?, phone_number = ?, address = ? where [user_id] = ?";
     try {
       prepareStatementFromUser(user, sql);
       preparedStatement.setString(7, user.getPhoneNumber());
@@ -110,7 +110,7 @@ public class UserDao extends GenericDao<User> {
     preparedStatement.setString(1, user.getUsername());
     preparedStatement.setString(2, user.getPassword());
     preparedStatement.setString(3, user.getEmail());
-    preparedStatement.setString(4, user.getRole());
+    preparedStatement.setByte(4, user.getRoleId());
     preparedStatement.setString(5, user.getFirstName());
     preparedStatement.setString(6, user.getLastName());
   }

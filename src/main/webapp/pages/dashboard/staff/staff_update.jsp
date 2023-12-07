@@ -29,8 +29,8 @@
                 <input type="hidden" name="id" value="${staff.userId}">
                 <label for="role" class="form-label">Role <span class="text-danger">*</span></label>
                 <select class="form-select" id="role" name="role" required="">
-                  <option value="admin" ${staff.role == "admin" ? "selected" : ""}>Admin</option>
-                  <option value="staff" ${staff.role == "staff" ? "selected" : ""}>Staff</option>
+                  <option value="1" ${staff.role == "admin" ? "selected" : ""}>Admin</option>
+                  <option value="2" ${staff.role == "staff" ? "selected" : ""}>Staff</option>
                 </select>
               </div>
               <div class="mb-3">

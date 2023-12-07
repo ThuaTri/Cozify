@@ -19,18 +19,23 @@ public class AuthenticationFilter implements Filter {
   private FilterConfig filterConfig = null;
 
   private final String[] IGNORED_URLS = {
-    "/signup",
-    "/login"
+      "/signup",
+      "/login"
   };
 
   private final String[] ADMIN_ONLY_DESTINATIONS = {
-    "/dashboard",
+      "/dashboard/category",
+      "/dashboard/clothes",
+      "/dashboard/order",
+      "/dashboard/user",
+      "/dashboard/staff"
   };
 
   private final String[] USER_ONLY_DESTINATIONS = {
       "/",
       "/cart",
-      "/checkout"
+      "/checkout",
+      "/dashboard/order-history"
   };
 
   private final String[] STAFF_ONLY_DESTINATIONS = {
@@ -40,8 +45,9 @@ public class AuthenticationFilter implements Filter {
   };
 
   private final String[] USER_RESTRICTED_DESTINATIONS = {
-    "/cart",
-    "/checkout"
+      "/cart",
+      "/checkout",
+      "/dashboard/order-history"
   };
 
   public AuthenticationFilter() {
@@ -108,7 +114,7 @@ public class AuthenticationFilter implements Filter {
         }
 
         // If the user is not logged in while accessing a restricted destination, redirect to login
-        if(isUserRestrictedDestination && session.getAttribute("user") == null) {
+        if (isUserRestrictedDestination && session.getAttribute("user") == null) {
           httpResponse.sendRedirect("/login");
           return;
         }
@@ -125,8 +131,10 @@ public class AuthenticationFilter implements Filter {
           switch (user.getRole()) {
             case "admin" -> {
               if (Arrays.stream(ADMIN_ONLY_DESTINATIONS).noneMatch(destination::startsWith)) {
-                httpResponse.sendRedirect("/dashboard");
-                return;
+                if (!destination.equals("/dashboard")) {
+                  httpResponse.sendRedirect("/dashboard");
+                  return;
+                }
               }
             }
             case "staff" -> {
@@ -142,6 +150,10 @@ public class AuthenticationFilter implements Filter {
             case "user" -> {
               if (Arrays.stream(USER_ONLY_DESTINATIONS).noneMatch(destination::startsWith)) {
                 // Just like the case of staff, users will automatically redirect to home page
+                if (!destination.equals("/dashboard")) {
+                  httpResponse.sendRedirect("/dashboard");
+                  return;
+                }
                 if (!destination.equals("/")) {
                   httpResponse.sendRedirect("/");
                   return;
@@ -152,8 +164,8 @@ public class AuthenticationFilter implements Filter {
         } else { // User is not logged in while attempting to access restricted destination, be it admin or staff
           // In the case of cart or checkout, redirect to login
           if (Arrays.stream(USER_RESTRICTED_DESTINATIONS).anyMatch(destination::startsWith)) {
-              httpResponse.sendRedirect("/login");
-              return;
+            httpResponse.sendRedirect("/login");
+            return;
           }
 
           // In the case of admin or staff, redirect to home page

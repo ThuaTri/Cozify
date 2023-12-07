@@ -1,11 +1,17 @@
 package models;
 
+import daos.OrderDao;
+import daos.PaymentMethodDao;
+
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class Order {
   // order_id, Auto-incremented, primary key, not null
   private int orderId;
+
+  // user_id, not null
+  private int userId;
 
   // order_time, not null
   private Timestamp orderTime;
@@ -15,6 +21,7 @@ public class Order {
 
   // payment_method, not null
   private String paymentMethod;
+  private byte paymentMethodId;
 
   // first_name, not null
   private String firstName;
@@ -40,22 +47,9 @@ public class Order {
   public Order() {
   }
 
-  public Order(String paymentMethod, String firstName, String lastName, String address, String phoneNumber, String email, BigDecimal total, String note) {
-    this.paymentMethod = paymentMethod;
-    this.firstName = firstName;
-    this.lastName = lastName;
-    this.address = address;
-    this.phoneNumber = phoneNumber;
-    this.email = email;
-    this.total = total;
-    this.note = note;
-  }
-
-  public Order(int orderId, Timestamp orderTime, String status, String paymentMethod, String firstName, String lastName, String address, String phoneNumber, String email, BigDecimal total, String note) {
-    this.orderId = orderId;
-    this.orderTime = orderTime;
-    this.status = status;
-    this.paymentMethod = paymentMethod;
+  public Order(int userId, byte paymentMethodId, String firstName, String lastName, String address, String phoneNumber, String email, BigDecimal total, String note) {
+    this.userId = userId;
+    this.setPaymentMethodId(paymentMethodId);
     this.firstName = firstName;
     this.lastName = lastName;
     this.address = address;
@@ -73,6 +67,14 @@ public class Order {
     this.orderId = orderId;
   }
 
+  public int getUserId() {
+    return userId;
+  }
+
+  public void setUserId(int userId) {
+    this.userId = userId;
+  }
+
   public Timestamp getOrderTime() {
     return orderTime;
   }
@@ -87,6 +89,17 @@ public class Order {
 
   public void setStatus(String status) {
     this.status = status;
+  }
+
+  public byte getPaymentMethodId() {
+    return paymentMethodId;
+  }
+
+  public void setPaymentMethodId(byte paymentMethodId) {
+    this.paymentMethodId = paymentMethodId;
+    PaymentMethodDao paymentMethodDao = new PaymentMethodDao();
+    PaymentMethod paymentMethod = paymentMethodDao.getById(paymentMethodId);
+    this.setPaymentMethod(paymentMethod.getPaymentMethod());
   }
 
   public String getPaymentMethod() {
