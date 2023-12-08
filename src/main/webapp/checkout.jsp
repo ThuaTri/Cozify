@@ -86,7 +86,7 @@
 
             <div class="col-12">
               <label for="phone" class="form-label">Phone number <span class="text-danger">*</span></label>
-              <input type="tel" class="form-control" id="phone" name="phone" placeholder="1234567890" value="${sessionScope.user.phoneNumber}" maxlength="13" pattern="[0-9]{13}" required="">
+              <input type="tel" class="form-control" id="phone" name="phone" placeholder="1234567890" value="${sessionScope.user.phoneNumber}" maxlength="13" pattern="\d{10,13}" required="">
               <div class="invalid-feedback">
                 Please enter a valid phone number for shipping updates.
               </div>

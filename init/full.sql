@@ -80,7 +80,7 @@ CREATE TABLE [order]
     first_name        NVARCHAR(50)             NOT NULL,
     last_name         NVARCHAR(50)             NOT NULL,
     [address]         NVARCHAR(255)            NOT NULL,
-    phone_number      CHAR(13)                 NOT NULL,
+    phone_number      VARCHAR(13)              NOT NULL,
     email             NVARCHAR(255)            NOT NULL,
     total             DECIMAL(10, 2)           NOT NULL,
     note              NVARCHAR(1000)
@@ -320,7 +320,8 @@ VALUES ('cod'),
 
 
 -- Inserting sample data into the updated Order table
-INSERT INTO [order] (user_id, order_time, status, payment_method_id, first_name, last_name, [address], phone_number, email,
+INSERT INTO [order] (user_id, order_time, status, payment_method_id, first_name, last_name, [address], phone_number,
+                     email,
                      total,
                      note)
 VALUES
