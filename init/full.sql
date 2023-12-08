@@ -80,7 +80,7 @@ CREATE TABLE [order]
     first_name        NVARCHAR(50)             NOT NULL,
     last_name         NVARCHAR(50)             NOT NULL,
     [address]         NVARCHAR(255)            NOT NULL,
-    phone_number      CHAR(11)                 NOT NULL,
+    phone_number      CHAR(13)                 NOT NULL,
     email             NVARCHAR(255)            NOT NULL,
     total             DECIMAL(10, 2)           NOT NULL,
     note              NVARCHAR(1000)
