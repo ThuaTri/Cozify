@@ -24,6 +24,10 @@
         <servlet-class>controllers.LoginController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>ResetPasswordController</servlet-name>
+        <servlet-class>controllers.ResetPasswordController</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>DashboardController</servlet-name>
         <servlet-class>controllers.DashboardController</servlet-class>
     </servlet>
@@ -111,6 +115,19 @@
         <servlet-name>SignupController</servlet-name>
         <url-pattern>/signup</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ResetPasswordController</servlet-name>
+        <url-pattern>/forget-password</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ResetPasswordController</servlet-name>
+        <url-pattern>/verify</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ResetPasswordController</servlet-name>
+        <url-pattern>/reset-password</url-pattern>
+    </servlet-mapping>
+
     <servlet-mapping>
         <servlet-name>DashboardController</servlet-name>
         <url-pattern>/dashboard/*</url-pattern>

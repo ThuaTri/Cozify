@@ -1,18 +1,17 @@
 package controllers;
 
+import com.microsoft.sqlserver.jdbc.StringUtils;
 import daos.OrderDao;
 import daos.OrderItemDao;
 import daos.UserDao;
+import daos.VoucherDao;
 import dbConnection.DbConnection;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import models.Cart;
-import models.Order;
-import models.OrderItem;
-import models.User;
+import models.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -27,6 +26,22 @@ public class CheckoutController extends HttpServlet {
     User user = (User) session.getAttribute("user");
     if (user == null) {
       response.sendRedirect("/login");
+      return;
+    }
+
+    if (request.getParameter("voucherCode") != null
+        && !StringUtils.isEmpty(request.getParameter("voucherCode"))) {
+      VoucherDao voucherDao = new VoucherDao();
+      String voucherCode = request.getParameter("voucherCode");
+      Voucher voucher = voucherDao.getByCode(voucherCode);
+      session.setAttribute("voucher", voucher);
+      response.sendRedirect("/checkout");
+      return;
+    }
+
+    if (request.getParameter("removeVoucher") != null) {
+      session.removeAttribute("voucher");
+      response.sendRedirect("/checkout");
       return;
     }
 
@@ -77,7 +92,17 @@ public class CheckoutController extends HttpServlet {
     // - total
     BigDecimal shipping = new BigDecimal(5);
     BigDecimal tax = cart.getTotal().divide(BigDecimal.valueOf(10), 2, RoundingMode.HALF_UP);
-    BigDecimal total = cart.getTotal().add(shipping).add(tax);
+    BigDecimal total;
+    if (session.getAttribute("voucher") != null) {
+      Voucher voucher = (Voucher) session.getAttribute("voucher");
+      // total = cart's total * (100 - voucher's percent) / 100 + shipping + tax
+      total = cart.getTotal().multiply(BigDecimal.valueOf(100 - voucher.getVoucherPercent()))
+          .divide(BigDecimal.valueOf(100))
+          .add(shipping)
+          .add(tax);
+    } else {
+      total = cart.getTotal().add(shipping).add(tax);
+    }
 
     // - note (optional)
     String note = request.getParameter("note") != null

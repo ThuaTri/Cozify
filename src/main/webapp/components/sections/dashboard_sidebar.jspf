@@ -47,6 +47,17 @@
         </c:if>
 
         <c:if test="${sessionScope.user.role == 'admin' || sessionScope.user.role == 'staff'}">
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="${pageContext.request.contextPath}/dashboard/voucher" aria-expanded="false">
+                <span>
+                  <i class="ph-bold ph-tag"></i>
+                </span>
+              <span class="hide-menu">Vouchers</span>
+            </a>
+          </li>
+        </c:if>
+
+        <c:if test="${sessionScope.user.role == 'admin' || sessionScope.user.role == 'staff'}">
           <li class="nav-small-cap">
             <i class="ti ti-dots nav-small-cap-icon fs-4"></i>
             <span class="hide-menu">Customers</span>
@@ -92,12 +103,36 @@
 
         <c:if test="${sessionScope.user.role == 'user'}">
           <li class="sidebar-item">
+            <a class="sidebar-link" href="${pageContext.request.contextPath}/dashboard/account-details"
+               aria-expanded="false">
+                <span>
+                   <i class="ph-bold ph-users"></i>
+                </span>
+              <span class="hide-menu">Account details</span>
+            </a>
+          </li>
+        </c:if>
+
+        <c:if test="${sessionScope.user.role == 'user'}">
+          <li class="sidebar-item">
             <a class="sidebar-link" href="${pageContext.request.contextPath}/dashboard/order-history"
                aria-expanded="false">
                 <span>
                    <i class="ph-bold ph-clipboard-text"></i>
                 </span>
               <span class="hide-menu">Order history</span>
+            </a>
+          </li>
+        </c:if>
+
+        <c:if test="${sessionScope.user.role == 'user'}">
+          <li class="sidebar-item">
+            <a class="sidebar-link" href="${pageContext.request.contextPath}/"
+               aria-expanded="false">
+                <span>
+                   <i class="ph-bold ph-arrow-left"></i>
+                </span>
+              <span class="hide-menu">Continue shopping</span>
             </a>
           </li>
         </c:if>

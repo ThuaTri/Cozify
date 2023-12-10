@@ -16,32 +16,24 @@
       <div class="login-wrap p-4 p-md-5 w-50">
         <div class="d-flex">
           <div class="w-100">
-            <h3 class="mb-4">Log in</h3>
+            <h3 class="mb-4">Forgot password</h3>
           </div>
         </div>
-        <form action="${pageContext.request.contextPath}/login" method="post" class="login-form d-flex flex-column needs-validation" novalidate="">
+        <form action="${pageContext.request.contextPath}/forget-password" method="post"
+              class="login-form d-flex flex-column needs-validation" novalidate="">
           <div class="form-group mb-3">
             <label class="label" for="email">Email</label>
             <input id="email" name="email" type="email" class="form-control" placeholder="" maxlength="255"
                    pattern="[a-z0-9](\.?[a-z0-9]){2,}@g(oogle)?mail\.com" required="">
+            <div class="form-text">We will send to your email a verification code.</div>
             <div class="invalid-feedback">
               Valid email is required.
             </div>
           </div>
-          <div class="form-group mb-3">
-            <div class="d-flex flex-row justify-content-between">
-              <label class="label" for="password">Password</label>
-              <a href="/forget-password">Forgot password?</a>
-            </div>
-            <input id="password" name="password" type="password" class="form-control" placeholder="" minlength="8"
-                   required="">
-            <div class="invalid-feedback">
-              Valid password is required and must have at least 8 characters.
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary rounded submit mt-3 px-3">Log in</button>
+
+          <button type="submit" class="btn btn-primary rounded submit mt-3 px-3">Send verification code</button>
         </form>
-        <p class="text-center mt-3">No account yet? <a href="${pageContext.request.contextPath}/signup">Sign up here.</a></p>
+        <p class="text-center mt-3"><a href="${pageContext.request.contextPath}/login">Return to login here.</a></p>
       </div>
     </div>
   </div>

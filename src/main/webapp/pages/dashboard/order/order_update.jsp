@@ -65,18 +65,18 @@
               </div>
               <div class="mb-3">
                 <label for="phoneNumber" class="form-label">Phone number <span class="text-danger">*</span></label>
-                <input type="number" class="form-control" maxlength="15" id="phoneNumber" name="phoneNumber"
+                <input type="number" class="form-control" maxlength="10" pattern="[0]{1}\d{9}" id="phoneNumber" name="phoneNumber"
                        placeholder="" value="${order.phoneNumber}">
-                <div class="form-text">Valid phone number should not exceed 13 characters.
+                <div class="form-text">Valid phone number starts with a 0 digit, and contains exactly 10 digits.
                 </div>
                 <div class="invalid-feedback">
-                  Phone number should not exceed 10 characters.
+                  Phone number is not valid.
                 </div>
               </div>
               <div class="mb-3">
                 <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                <input type="email" maxlength="255" class="form-control" id="email" name="email" placeholder=""
-                       required=""
+                <input type="email" class="form-control" id="email" name="email" placeholder=""
+                       required="" maxlength="255" pattern="[a-z0-9](\.?[a-z0-9]){2,}@g(oogle)?mail\.com"
                        value="${order.email}">
                 <div class="form-text">Valid email should not exceed 255 characters.</div>
                 <div class="invalid-feedback">

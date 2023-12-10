@@ -110,10 +110,11 @@ public class OrderDao extends GenericDao<Order> {
   @Override
   public int update(Order order) {
     int result = 0;
-    String sql = "update [order] set user_id = ?, payment_method_id = ?, first_name = ?, last_name = ?, [address] = ?, phone_number = ?, email = ?, total = ?, note = ? where order_id = ?";
+    String sql = "update [order] set user_id = ?, payment_method_id = ?, first_name = ?, last_name = ?, [address] = ?, phone_number = ?, email = ?, total = ?, note = ?, status = ? where order_id = ?";
     try {
       prepareStatementFromOrder(order, sql);
-      preparedStatement.setInt(10, order.getOrderId());
+      preparedStatement.setString(10, order.getStatus());
+      preparedStatement.setInt(11, order.getOrderId());
       result = preparedStatement.executeUpdate();
     } catch (SQLException e) {
       handleSQLException(e);

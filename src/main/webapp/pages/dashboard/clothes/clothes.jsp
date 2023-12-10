@@ -64,7 +64,7 @@
                   </a>
                   <a href="${pageContext.request.contextPath}/dashboard/clothes/delete?id=${c.clothesId}"
                      class="btn btn-sm btn-danger py-1 m-1"
-                     onclick="return confirm('Disable this clothes item? This cannot be undone.')">>
+                     onclick="return confirm('Disable this clothes item? This cannot be undone.')">
                     Disable
                   </a>
                 </td>

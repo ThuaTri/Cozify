@@ -25,6 +25,7 @@
           <table id="order-table" class="table table-hover align-middle" style="width:100%">
             <thead>
             <tr>
+              <th>Order ID</th>
               <th>Order time</th>
               <th>Status</th>
               <th>Payment method</th>
@@ -38,6 +39,7 @@
             <tbody>
             <c:forEach items="${orders}" var="o">
               <tr>
+                <td>${o.orderId}</td>
                 <td class="text-wrap">
                   <fmt:formatDate value="${o.orderTime}" pattern="HH:mm MM/dd/yyyy"/>
                 </td>

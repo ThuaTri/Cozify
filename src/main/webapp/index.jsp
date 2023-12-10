@@ -11,20 +11,32 @@
 <%@ include file="components/sections/store_components.jspf" %>
 
 <!-- Hero section -->
-<header class="bg-dark py-5">
+<header class="hero bg-dark py-5">
   <div class="container px-4 px-lg-5 my-5">
     <div class="text-center text-white">
       <h1 class="display-4 fw-bolder text-white">Shop in style</h1>
-      <p class="lead fw-normal text-white-50 mb-0">With Cozify's stylish options</p>
+      <p class="lead fw-normal text-white mb-0">With Cozify's stylish options</p>
     </div>
   </div>
 </header>
 
 <!-- Main Content -->
 <main class="main" id="top">
-  <!-- Section-->
+  <!-- Filters -->
   <section class="py-5">
-    <div class="container px-4 px-lg-5 mt-5">
+    <div class="container px-4 px-lg-5">
+      <div class="d-flex flex-row gap-5 justify-content-center text-center fs-6 fw-bolder">
+        <a href="${pageContext.request.contextPath}/">All categories</a>
+        <c:forEach items="${categories}" var="c">
+          <a href="${pageContext.request.contextPath}/?filter=${c.categoryId}">${c.categoryName}</a>
+        </c:forEach>
+      </div>
+    </div>
+  </section>
+
+  <!-- Listings -->
+  <section class="pb-5">
+    <div class="container px-4 px-lg-5">
       <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
         <c:forEach items="${clothes}" var="c">
           <div class="col mb-5">
@@ -80,4 +92,26 @@
 <%@ include file="components/sections/footer.jspf" %>
 <%@ include file="components/imports/javascript.jspf" %>
 </body>
+
+<style>
+    .hero {
+        position: relative;
+    }
+
+    .hero::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('${pageContext.request.contextPath}/resources/media/img/hero.jpg');
+        background-size: contain;
+        filter: brightness(0.4);
+    }
+
+    .hero .container {
+        position: relative;
+    }
+</style>
 </html>

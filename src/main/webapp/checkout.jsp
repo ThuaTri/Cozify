@@ -3,7 +3,7 @@
 <html>
 <head>
   <jsp:include page="components/sections/head.jspf">
-    <jsp:param name="titleDescription" value="Checkout" />
+    <jsp:param name="titleDescription" value="Checkout"/>
   </jsp:include>
 </head>
 <body>
@@ -40,27 +40,60 @@
             </c:otherwise>
           </c:choose>
 
+          <c:set var="voucher" value="${sessionScope.voucher != null ? sessionScope.voucher : null}"/>
           <c:set var="shipping" value="${cart.getNumberOfItems() > 0 ? 5.00 : 0.00}"/>
           <c:set var="tax" value="${cart.total / 10.00}"/>
+
+          <c:if test="${voucher != null}">
+            <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
+              <div class="text-black">
+                <h6 class="my-0">Voucher: ${voucher.voucherName}</h6>
+                <small class="text-body-secondary">Vouchers are applied before shipping fee and tax.</small>
+              </div>
+              <span class="text-body-secondary">-${voucher.voucherPercent}%</span>
+              <a href="/checkout?removeVoucher=true" class="text-body-secondary">
+                <i class="ms-2 ph-bold ph-x"></i>
+              </a>
+            </li>
+          </c:if>
           <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
-            <div class="text-success">
+            <div class="text-black">
               <h6 class="my-0">Shipping fee</h6>
             </div>
-            <span class="text-success">$<fmt:formatNumber pattern="#,###.##">${shipping}</fmt:formatNumber></span>
+            <span class="text-black">$<fmt:formatNumber pattern="#,###.##">${shipping}</fmt:formatNumber></span>
           </li>
           <li class="list-group-item d-flex justify-content-between bg-body-tertiary">
-            <div class="text-success">
+            <div class="text-black">
               <h6 class="my-0">Tax</h6>
             </div>
-            <span class="text-success">$<fmt:formatNumber pattern="#,###.##">${tax}</fmt:formatNumber></span>
+            <span class="text-black">$<fmt:formatNumber pattern="#,###.##">${tax}</fmt:formatNumber></span>
           </li>
+
           <li class="list-group-item d-flex justify-content-between">
             <span>Grand Total</span>
             <strong>
-              $<fmt:formatNumber pattern="#,###.##">${cart.total + shipping + tax}</fmt:formatNumber>
+              $<fmt:formatNumber
+                pattern="#,###.##">${cart.total * (100 - voucher.voucherPercent) / 100 + shipping + tax}</fmt:formatNumber>
             </strong>
           </li>
         </ul>
+
+        <c:if test="${voucher == null}">
+          <form class="card p-2" method="get" action="/checkout" id="voucher-form">
+            <div class="input-group">
+              <label for="voucherCode" class="form-label">Voucher/Coupon code <span class="text-danger">*</span></label>
+              <div id="voucherCode" class="input-group">
+                <input type="text" maxlength="16" pattern="[a-zA-Z0-9]{16}" class="form-control" name="voucherCode"
+                       placeholder="Voucher or coupon code" required="">
+                <button type="submit" class="btn btn-secondary" onclick="redeemVoucher(this)">Redeem</button>
+              </div>
+              <div class="form-text">Valid voucher code has exactly 16 characters.</div>
+              <div class="invalid-feedback">
+                Voucher code is invalid.
+              </div>
+            </div>
+          </form>
+        </c:if>
 
       </div>
       <div class="col-md-7 col-lg-8">
@@ -70,7 +103,8 @@
             <p>Input fields marked with <span class="text-danger">*</span> are required</p>
             <div class="col-sm-6">
               <label for="firstName" class="form-label">First name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="firstName" name="firstName" placeholder="" value="${sessionScope.user.firstName}" required="">
+              <input type="text" class="form-control" id="firstName" name="firstName" placeholder=""
+                     value="${sessionScope.user.firstName}" required="">
               <div class="invalid-feedback">
                 Valid first name is required.
               </div>
@@ -78,7 +112,8 @@
 
             <div class="col-sm-6">
               <label for="lastName" class="form-label">Last name <span class="text-danger">*</span></label>
-              <input type="text" class="form-control" id="lastName" name="lastName" placeholder="" value="${sessionScope.user.lastName}" required="">
+              <input type="text" class="form-control" id="lastName" name="lastName" placeholder=""
+                     value="${sessionScope.user.lastName}" required="">
               <div class="invalid-feedback">
                 Valid last name is required.
               </div>
@@ -86,7 +121,8 @@
 
             <div class="col-12">
               <label for="phone" class="form-label">Phone number <span class="text-danger">*</span></label>
-              <input type="tel" class="form-control" id="phone" name="phone" placeholder="1234567890" value="${sessionScope.user.phoneNumber}" maxlength="13" pattern="\d{10,13}" required="">
+              <input type="tel" class="form-control" id="phone" name="phone" placeholder="1234567890"
+                     value="${sessionScope.user.phoneNumber}" maxlength="10" pattern="[0]{1}\d{9}" required="">
               <div class="invalid-feedback">
                 Please enter a valid phone number for shipping updates.
               </div>
@@ -94,7 +130,9 @@
 
             <div class="col-12">
               <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" value="${sessionScope.user.email}" required="">
+              <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com"
+                     value="${sessionScope.user.email}" maxlength="255"
+                     pattern="[a-z0-9](\.?[a-z0-9]){2,}@g(oogle)?mail\.com" required="">
               <div class="invalid-feedback">
                 Please enter a valid email address for shipping updates.
               </div>
@@ -103,7 +141,8 @@
             <div class="col-12">
               <label for="address" class="form-label">Address <span class="text-danger">*</span></label>
               <input type="text" class="form-control" id="address" name="address"
-                     placeholder="Apartment 1 (optional), 1234 Main St, Example State" value="${sessionScope.user.address}" required="">
+                     placeholder="Apartment 1 (optional), 1234 Main St, Example State"
+                     value="${sessionScope.user.address}" required="">
               <div class="invalid-feedback">
                 Please enter your shipping address.
               </div>
@@ -128,14 +167,17 @@
 
           <div class="my-3">
             <div class="form-check">
-              <input id="cod" name="paymentMethod" type="radio" class="form-check-input" value="1" checked="" required="">
+              <input id="cod" name="paymentMethod" type="radio" class="form-check-input" value="1" checked=""
+                     required="">
               <label class="form-check-label" for="cod">Cash on delivery</label>
             </div>
           </div>
 
           <hr class="my-4">
 
-          <button class="w-100 btn btn-primary btn-lg ${cart.getNumberOfItems() > 0 ? "" : "disabled"}" type="submit">Place order</button>
+          <button class="w-100 btn btn-primary btn-lg ${cart.getNumberOfItems() > 0 ? "" : "disabled"}" type="submit">
+            Place order
+          </button>
         </form>
       </div>
     </div>
@@ -145,5 +187,18 @@
 <%@ include file="components/sections/footer.jspf" %>
 <%@ include file="components/imports/javascript.jspf" %>
 <script src="${pageContext.request.contextPath}/components/utils/validation.js"></script>
+<script>
+  let voucherForm = document.getElementById("voucher-form");
+
+  function redeemVoucher(event) {
+    if (!voucherForm.checkValidity()) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    voucherForm.classList.add('was-validated');
+  }
+
+</script>
 </body>
 </html>

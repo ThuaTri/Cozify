@@ -38,8 +38,8 @@
               </div>
               <div class="mb-3">
                 <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                <input type="email" maxlength="255" class="form-control" id="email" name="email" placeholder=""
-                       required=""
+                <input type="email" class="form-control" id="email" name="email" placeholder=""
+                       required="" maxlength="255" pattern="[a-z0-9](\.?[a-z0-9]){2,}@g(oogle)?mail\.com"
                        value="${user.email}">
                 <div class="form-text">Valid email should not exceed 255 characters.</div>
                 <div class="invalid-feedback">
@@ -48,8 +48,11 @@
               </div>
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="">
+                <input type="password" class="form-control" id="password" name="password" minlength="8" placeholder="">
                 <div class="form-text">Leave blank to not update password.</div>
+                <div class="invalid-feedback">
+                  Valid password must have at least 8 characters.
+                </div>
               </div>
               <div class="mb-3">
                 <label for="firstName" class="form-label">First name <span class="text-danger">*</span></label>
@@ -71,9 +74,10 @@
               </div>
               <div class="mb-3">
                 <label for="phoneNumber" class="form-label">Phone number</label>
-                <input type="number" class="form-control" maxlength="15" id="phoneNumber" name="phoneNumber"
+                <input type="tel" class="form-control" maxlength="10" pattern="[0]{1}[0-9]{9}" id="phoneNumber"
+                       name="phoneNumber"
                        placeholder="" value="${user.phoneNumber}">
-                <div class="form-text">Valid phone number should not exceed 13 characters.
+                <div class="form-text">Valid phone number should not exceed 10 characters.
                 </div>
                 <div class="invalid-feedback">
                   Phone number should not exceed 10 characters.

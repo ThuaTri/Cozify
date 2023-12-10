@@ -15,47 +15,54 @@
   <%@ include file="../../../components/sections/dashboard_sidebar.jspf" %>
   <%@ include file="../../../components/elements/toast.jspf" %>
 
-
   <!--  Main wrapper -->
   <div class="body-wrapper">
     <%@ include file="../../../components/sections/dashboard_header.jspf" %>
     <div class="container-fluid">
       <div class="card">
         <div class="card-body">
-          <h5 class="card-title fw-semibold mb-4">Category Management</h5>
-          <table id="category-table" class="table table-hover nowrap align-middle" style="width:100%">
-            <a href="category/add" class="btn btn-sm btn-success py-1 my-2 me-2">
-              Add Category
+          <h5 class="card-title fw-semibold mb-4">Voucher Management</h5>
+          <table id="voucher-table" class="table table-hover align-middle" style="width:100%">
+            <a href="voucher/add" class="btn btn-sm btn-success py-1 my-2 me-2">
+              Add Voucher
             </a>
             <thead>
             <tr>
               <th>ID</th>
-              <th>Category name</th>
-              <th>Item count</th>
-              <th>Order count</th>
-              <th>State</th>
-              <th>Total revenue</th>
+              <th>Name</th>
+              <th>Code</th>
+              <th>Value (%)</th>
+              <th>Quantity</th>
+              <th>Start date</th>
+              <th>End date</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
             </thead>
             <tbody>
-            <c:forEach items="${categoryReports}" var="r">
+            <c:forEach items="${vouchers}" var="v">
               <tr>
-                <td>${r.categoryId}</td>
-                <td>${r.categoryName}</td>
-                <td>${r.itemCount}</td>
-                <td>${r.orderCount}</td>
-                <td>${r.isHidden ? "Disabled" : "Available"}</td>
-                <td>$<fmt:formatNumber type="number" pattern="#,###.##" value="${r.totalProfit}"/></td>
+                <td>${v.voucherId}</td>
+                <td>${v.voucherName}</td>
+                <td>${v.voucherCode}</td>
+                <td>${v.voucherPercent}</td>
+                <td>${v.voucherQuantity}</td>
+                <td class="text-wrap">
+                  <fmt:formatDate value="${v.startDate}" pattern="HH:mm MM/dd/yyyy"/>
+                </td>
+                <td class="text-wrap">
+                  <fmt:formatDate value="${v.endDate}" pattern="HH:mm MM/dd/yyyy"/>
+                </td>
+                <td>${v.isHidden ? "Disabled" : "Available"}</td>
                 <td>
-                  <a href="${pageContext.request.contextPath}/dashboard/category/update?id=${r.categoryId}"
-                     class="btn btn-sm btn-success py-1 m-1">
+                  <a href="${pageContext.request.contextPath}/dashboard/voucher/update?id=${v.voucherId}"
+                          class="btn btn-sm btn-success py-1 m-1">
                     Update
                   </a>
-                  <a href="${pageContext.request.contextPath}/dashboard/category/delete?id=${r.categoryId}"
+                  <a href="${pageContext.request.contextPath}/dashboard/voucher/delete?id=${v.voucherId}"
                      class="btn btn-sm btn-danger py-1 m-1"
-                     onclick="return confirm('Disable this category? Note that this will also disable all clothes of this category.')">
-                    Disable
+                     onclick="return confirm('Delete this voucher? This cannot be undone.')">
+                    Delete
                   </a>
                 </td>
               </tr>

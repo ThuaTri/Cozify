@@ -52,9 +52,9 @@
               </div>
               <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" class="form-control" id="password" name="password" placeholder="" required="">
+                <input id="password" name="password" type="password" class="form-control" placeholder="" minlength="8" required="">
                 <div class="invalid-feedback">
-                  Valid password is required.
+                  Valid password is required and must have at least 8 characters.
                 </div>
               </div>
               <div class="mb-3">

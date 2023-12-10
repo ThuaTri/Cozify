@@ -25,6 +25,7 @@
               ${sessionScope.user.username}
             </button>
             <ul class="dropdown-menu dropdown-menu-end text-small shadow">
+              <li><a class="dropdown-item" href="${pageContext.request.contextPath}/dashboard/account-details">Account details</a></li>
               <li><a class="dropdown-item" href="${pageContext.request.contextPath}/dashboard/order-history">Order history</a></li>
               <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Log out</a></li>
             </ul>

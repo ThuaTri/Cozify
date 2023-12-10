@@ -22,23 +22,26 @@
         <form action="/signup" method="post" novalidate="" class="signin-form d-flex flex-column needs-validation">
           <div class="form-group mb-3">
             <label class="label" for="username">Username</label>
-            <input id="username" name="username" maxlength="50" type="text" class="form-control" placeholder="" required="">
+            <input id="username" name="username" maxlength="50" type="text" class="form-control" placeholder=""
+                   required="">
             <div class="invalid-feedback">
               Valid username is required.
             </div>
           </div>
           <div class="form-group mb-3">
             <label class="label" for="email">Email</label>
-            <input id="email" name="email" maxlength="255" type="email" class="form-control" placeholder="" required="">
+            <input id="email" name="email" maxlength="255" pattern="[a-z0-9](\.?[a-z0-9]){2,}@g(oogle)?mail\.com"
+                   type="email" class="form-control" placeholder="" required="">
             <div class="invalid-feedback">
               Valid email is required.
             </div>
           </div>
           <div class="form-group mb-3">
             <label class="label" for="password">Password</label>
-            <input id="password" name="password" type="password" class="form-control" placeholder="" required="">
+            <input id="password" name="password" type="password" class="form-control" placeholder="" minlength="8"
+                   required="">
             <div class="invalid-feedback">
-              Valid password is required.
+              Valid password is required and must have at least 8 characters.
             </div>
           </div>
           <button type="submit" class="btn btn-primary rounded submit mt-3 px-3">Sign in</button>

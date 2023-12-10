@@ -48,7 +48,7 @@ public class ClothesDao extends GenericDao<Clothes> {
   /**
    * Retrieves all distinct clothes from the database.
    *
-   * @return         	A list of distinct clothes with default size M (if it has a size)
+   * @return A list of distinct clothes with default size M (if it has a size)
    */
   public List<Clothes> getAllDistinct() {
     list = null;
@@ -213,6 +213,23 @@ public class ClothesDao extends GenericDao<Clothes> {
       list = new ArrayList<>();
       preparedStatement = connection.prepareStatement(sql);
       preparedStatement.setString(1, username);
+      resultSet = preparedStatement.executeQuery();
+      while (resultSet.next()) {
+        list.add(getClothesFromResultSetItem(resultSet));
+      }
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return list;
+  }
+
+  public List<Clothes> getAllDistinctByCategory(int categoryId) {
+    list = null;
+    String sql = "select * from clothes where category_id = ? and stock_quantity > 0 and is_hidden = 0 and (size = 'M' or size = '8' or size is null)";
+    try {
+      list = new ArrayList<>();
+      preparedStatement = connection.prepareStatement(sql);
+      preparedStatement.setInt(1, categoryId);
       resultSet = preparedStatement.executeQuery();
       while (resultSet.next()) {
         list.add(getClothesFromResultSetItem(resultSet));

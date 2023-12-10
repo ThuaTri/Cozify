@@ -26,6 +26,7 @@ public class AuthenticationFilter implements Filter {
   private final String[] ADMIN_ONLY_DESTINATIONS = {
       "/dashboard/category",
       "/dashboard/clothes",
+      "/dashboard/voucher",
       "/dashboard/order",
       "/dashboard/user",
       "/dashboard/staff"
@@ -41,6 +42,7 @@ public class AuthenticationFilter implements Filter {
   private final String[] STAFF_ONLY_DESTINATIONS = {
       "/dashboard/category",
       "/dashboard/clothes",
+      "/dashboard/voucher",
       "/dashboard/order"
   };
 

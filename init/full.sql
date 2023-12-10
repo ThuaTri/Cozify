@@ -69,6 +69,18 @@ CREATE TABLE payment_method
     payment_method    NVARCHAR(50)                 NOT NULL -- cod
 )
 
+CREATE TABLE voucher
+(
+    voucher_id       INT IDENTITY PRIMARY KEY NOT NULL,
+    voucher_name     NVARCHAR(200)            NOT NULL,
+    voucher_code     CHAR(16)                 NOT NULL,
+    voucher_percent  TINYINT                  NOT NULL,
+    voucher_quantity INT                      NOT NULL,
+    start_date       DATETIME DEFAULT GETDATE(),
+    end_date         DATETIME DEFAULT DATEADD(day, 7, GETDATE()), -- by default, a voucher lasts for 7 days since its creation
+    is_hidden        BIT                      NOT NULL
+)
+
 -- Create the Orders table
 CREATE TABLE [order]
 (
@@ -312,6 +324,12 @@ VALUES
     ('Gold Earrings', 59.99, 0, 2, 25, NULL, 0, 6),
 
     ('Leather Wallet', 34.99, 0, 5, 20, NULL, 0, 6);
+
+INSERT INTO voucher (voucher_name, voucher_code, voucher_percent, voucher_quantity, is_hidden)
+VALUES ('10% Off', 'ABCD1234EFGH5678', 10, 100, 0),
+       ('20% Off', 'IJKL9012MNOP3456', 20, 50, 0),
+       ('30% Off', 'QRST6789UVWX1234', 30, 30, 1),
+       ('50% Off', 'YZAB4567CDEF8901', 50, 10, 0);
 
 INSERT INTO payment_method (payment_method)
 VALUES ('cod'),

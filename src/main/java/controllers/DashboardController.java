@@ -1,27 +1,28 @@
 package controllers;
 
 import com.microsoft.sqlserver.jdbc.StringUtils;
-import daos.CategoryDao;
-import daos.ClothesDao;
-import daos.OrderDao;
-import daos.UserDao;
+import daos.*;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import models.Category;
-import models.Clothes;
-import models.Order;
-import models.User;
+import models.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
+import java.sql.Date;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @MultipartConfig
 public class DashboardController extends HttpServlet {
@@ -39,16 +40,20 @@ public class DashboardController extends HttpServlet {
     }
     if (path.equals("/dashboard")) {
       switch (role) {
-        case "user" -> response.sendRedirect("/dashboard/order-history");
+        case "user" -> response.sendRedirect("/dashboard/account-details");
         case "admin", "staff" -> response.sendRedirect("/dashboard/category");
         default -> response.sendRedirect("/");
       }
+    } else if (path.startsWith("/dashboard/account-details")) {
+      redirectToAccountDetails(request, response, "get");
     } else if (path.startsWith("/dashboard/order-history")) {
       redirectToOrderHistory(request, response, "get");
     } else if (path.startsWith("/dashboard/category")) {
       redirectToCategory(request, response, "get");
     } else if (path.startsWith("/dashboard/clothes")) {
       redirectToClothes(request, response, "get");
+    } else if (path.startsWith("/dashboard/voucher")) {
+      redirectToVoucher(request, response, "get");
     } else if (path.startsWith("/dashboard/user")) {
       redirectToUser(request, response, "get");
     } else if (path.startsWith("/dashboard/order")) {
@@ -67,10 +72,14 @@ public class DashboardController extends HttpServlet {
 
     if (path.equals("/dashboard")) {
       response.sendRedirect("/dashboard/category");
-    } else if (path.startsWith("/dashboard/category")) {
+    } else if (path.startsWith("/dashboard/account-details")) {
+      redirectToAccountDetails(request, response, "post");
+    }else if (path.startsWith("/dashboard/category")) {
       redirectToCategory(request, response, "post");
     } else if (path.startsWith("/dashboard/clothes")) {
       redirectToClothes(request, response, "post");
+    } else if (path.startsWith("/dashboard/voucher")) {
+      redirectToVoucher(request, response, "post");
     } else if (path.startsWith("/dashboard/user")) {
       redirectToUser(request, response, "post");
     } else if (path.startsWith("/dashboard/order")) {
@@ -95,6 +104,80 @@ public class DashboardController extends HttpServlet {
       List<Order> orders = orderDao.getAllByUserId(userId);
       request.setAttribute("orders", orders);
       request.getRequestDispatcher("/pages/dashboard/order_history.jsp").forward(request, response);
+    }
+  }
+
+  private void redirectToAccountDetails(HttpServletRequest request, HttpServletResponse response, String method)
+      throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    String path = request.getRequestURI();
+    if (path.equals("/dashboard/account-details")) {
+      if (method.equals("post")) {
+        int userId = Integer.parseInt(request.getParameter("id"));
+        String username = request.getParameter("username");
+        String email = request.getParameter("email");
+
+        // Optional fields
+        String password = request.getParameter("password") != null
+            ? getMd5(request.getParameter("password"))
+            : "";
+        String firstName = request.getParameter("firstName") != null
+            ? request.getParameter("firstName")
+            : "";
+        String lastName = request.getParameter("lastName") != null
+            ? request.getParameter("lastName")
+            : "";
+        String phoneNumber = request.getParameter("phoneNumber") != null
+            ? request.getParameter("phoneNumber")
+            : "";
+        String address = request.getParameter("address") != null
+            ? request.getParameter("address")
+            : "";
+
+        UserDao userDao = new UserDao();
+        User user = userDao.getById(userId);
+        user.setUsername(username);
+        user.setEmail(email);
+        if (!password.isBlank()) {
+          user.setPassword(password);
+        }
+        if (!firstName.isBlank()) {
+          user.setFirstName(firstName);
+        }
+        if (!lastName.isBlank()) {
+          user.setLastName(lastName);
+        }
+        if (!phoneNumber.isBlank()) {
+          user.setPhoneNumber(phoneNumber);
+        }
+        if (!address.isBlank()) {
+          user.setAddress(address);
+        }
+
+        try {
+          userDao.update(user);
+          session.setAttribute("message", "success-update-user");
+        } catch (RuntimeException e) {
+          session.setAttribute("message", "error-update-user");
+          response.sendRedirect("/dashboard/account-details");
+        }
+        response.sendRedirect("/dashboard/account-details");
+      } else {
+        int userId = session.getAttribute("user") != null
+            ? ((User) session.getAttribute("user")).getUserId()
+            : -1;
+
+        if (userId == -1) {
+          response.sendRedirect("/");
+          return;
+        }
+
+        UserDao userDao = new UserDao();
+        User user = userDao.getById(userId);
+
+        request.setAttribute("user", user);
+        request.getRequestDispatcher("/pages/dashboard/account_details.jsp").forward(request, response);
+      }
     }
   }
 
@@ -243,6 +326,105 @@ public class DashboardController extends HttpServlet {
         session.setAttribute("message", "error-delete-clothes");
       }
       response.sendRedirect("/dashboard/clothes");
+    }
+  }
+
+  private void redirectToVoucher(HttpServletRequest request, HttpServletResponse response, String method)
+      throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    String path = request.getRequestURI();
+    if (path.equals("/dashboard/voucher")) {
+      VoucherDao voucherDao = new VoucherDao();
+      List<Voucher> vouchers = voucherDao.getAll();
+      request.setAttribute("vouchers", vouchers);
+      request.getRequestDispatcher("/pages/dashboard/voucher/voucher.jsp").forward(request, response);
+    } else if (path.startsWith("/dashboard/voucher/add")) {
+      if (method.equals("post")) {
+        String voucherName = request.getParameter("voucherName");
+        String voucherCode = request.getParameter("voucherCode");
+        byte voucherPercent = Byte.parseByte(request.getParameter("voucherPercent"));
+        int voucherQuantity = Integer.parseInt(request.getParameter("voucherQuantity"));
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
+        boolean isHidden = !StringUtils.isEmpty(request.getParameter("isHidden"))
+            && request.getParameter("isHidden").equals("true");
+
+        VoucherDao voucherDao = new VoucherDao();
+        Voucher voucher = new Voucher();
+        voucher.setVoucherName(voucherName);
+        voucher.setVoucherCode(voucherCode);
+        voucher.setVoucherPercent(voucherPercent);
+        voucher.setVoucherQuantity(voucherQuantity);
+        voucher.setStartDate(this.convertToTimestamp(startDate));
+        voucher.setEndDate(this.convertToTimestamp(endDate));
+        voucher.setIsHidden(isHidden);
+
+        if (voucherDao.getByName(voucherName) != null || voucherDao.getByCode(voucherCode) != null) {
+          session.setAttribute("message", "error-add-voucher-existing-voucher");
+          response.sendRedirect("/dashboard/voucher/add");
+          return;
+        }
+
+        try {
+          voucherDao.add(voucher);
+          session.setAttribute("message", "success-add-voucher");
+        } catch (RuntimeException e) {
+          session.setAttribute("message", "error-add-voucher");
+          response.sendRedirect("/dashboard/voucher/add");
+        }
+        response.sendRedirect("/dashboard/voucher");
+      } else {
+        request.getRequestDispatcher("/pages/dashboard/voucher/voucher_add.jsp").forward(request, response);
+      }
+    } else if (path.startsWith("/dashboard/voucher/update")) {
+      if (method.equals("post")) {
+        int voucherId = Integer.parseInt(request.getParameter("id"));
+        String voucherName = request.getParameter("voucherName");
+        String voucherCode = request.getParameter("voucherCode");
+        byte voucherPercent = Byte.parseByte(request.getParameter("voucherPercent"));
+        int voucherQuantity = Integer.parseInt(request.getParameter("voucherQuantity"));
+        String startDate = request.getParameter("startDate");
+        String endDate = request.getParameter("endDate");
+        boolean isHidden = !StringUtils.isEmpty(request.getParameter("isHidden"))
+            && request.getParameter("isHidden").equals("true");
+
+        VoucherDao voucherDao = new VoucherDao();
+        Voucher voucher = voucherDao.getById(voucherId);
+        voucher.setVoucherName(voucherName);
+        voucher.setVoucherCode(voucherCode);
+        voucher.setVoucherPercent(voucherPercent);
+        voucher.setVoucherQuantity(voucherQuantity);
+        voucher.setStartDate(this.convertToTimestamp(startDate));
+        voucher.setEndDate(this.convertToTimestamp(endDate));
+        voucher.setIsHidden(isHidden);
+
+        try {
+          voucherDao.update(voucher);
+          session.setAttribute("message", "success-update-voucher");
+        } catch (RuntimeException e) {
+          session.setAttribute("message", "error-update-voucher");
+          response.sendRedirect("/dashboard/voucher/update");
+        }
+        response.sendRedirect("/dashboard/voucher");
+      } else {
+        int voucherId = Integer.parseInt(request.getParameter("id"));
+
+        VoucherDao voucherDao = new VoucherDao();
+        Voucher voucher = voucherDao.getById(voucherId);
+
+        request.setAttribute("voucher", voucher);
+        request.getRequestDispatcher("/pages/dashboard/voucher/voucher_update.jsp").forward(request, response);
+      }
+    } else if (path.startsWith("/dashboard/voucher/delete")) {
+      int clothesId = Integer.parseInt(request.getParameter("id"));
+      VoucherDao voucherDao = new VoucherDao();
+      try {
+        voucherDao.delete(clothesId);
+        session.setAttribute("message", "success-delete-voucher");
+      } catch (RuntimeException e) {
+        session.setAttribute("message", "error-delete-voucher");
+      }
+      response.sendRedirect("/dashboard/voucher");
     }
   }
 
@@ -430,29 +612,32 @@ public class DashboardController extends HttpServlet {
             : "";
 
         UserDao userDao = new UserDao();
-        User user = new User();
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setRoleId(roleId);
-        user.setPassword(password);
-
-        if (!firstName.isBlank()) {
-          user.setFirstName(firstName);
-        }
-        if (!lastName.isBlank()) {
-          user.setLastName(lastName);
-        }
-        if (!phoneNumber.isBlank()) {
-          user.setPhoneNumber(phoneNumber);
-        }
-        if (!address.isBlank()) {
-          user.setAddress(address);
-        }
 
         try {
-          userDao.add(user);
-          session.setAttribute("message", "success-add-staff");
-        } catch (RuntimeException e) {
+          // Check if the user with the same email already exists
+          if (userDao.login(email, password) || userDao.hasExistingUsername(username)) {
+            session.setAttribute("message", "error-register-existing-email");
+            response.sendRedirect("/staff/add");
+          } else {
+            User user = new User(username, password, email, roleId);
+            if (!firstName.isBlank()) {
+              user.setFirstName(firstName);
+            }
+            if (!lastName.isBlank()) {
+              user.setLastName(lastName);
+            }
+            if (!phoneNumber.isBlank()) {
+              user.setPhoneNumber(phoneNumber);
+            }
+            if (!address.isBlank()) {
+              user.setAddress(address);
+            }
+
+            userDao.add(user);
+            session.setAttribute("message", "success-add-staff");
+          }
+        } catch (SQLException | RuntimeException e) {
+          Logger.getLogger(SignupController.class.getName()).log(Level.SEVERE, null, e);
           session.setAttribute("message", "error-add-staff");
           response.sendRedirect("/dashboard/staff/update");
         }
@@ -548,5 +733,16 @@ public class DashboardController extends HttpServlet {
     } catch (NoSuchAlgorithmException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private Timestamp convertToTimestamp(String date) {
+    // Create a DateTimeFormatter with the expected format
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
+    // Parse the datetime-local value to LocalDateTime
+    LocalDateTime localDateTime = LocalDateTime.parse(date, formatter);
+
+    // Convert LocalDateTime to Timestamp
+    return Timestamp.valueOf(localDateTime);
   }
 }
