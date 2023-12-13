@@ -297,13 +297,10 @@ public class AuthenticationFilter implements Filter {
     Cookie[] cookies = request.getCookies();
     if (cookies != null) {
       for (Cookie cookie : cookies) {
-        // Delete all cookies except the user's cart cookie (which only contains digits)
-        if (!cookie.getName().matches("\\d+")) {
-          Cookie newCookie = new Cookie(cookie.getName(), null);
-          newCookie.setMaxAge(0);
-          newCookie.setPath("/");
-          response.addCookie(newCookie);
-        }
+        Cookie newCookie = new Cookie(cookie.getName(), null);
+        newCookie.setMaxAge(0);
+        newCookie.setPath("/");
+        response.addCookie(newCookie);
       }
     }
     HttpSession session = request.getSession();

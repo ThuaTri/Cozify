@@ -2,11 +2,10 @@ package models;
 
 import daos.CategoryDao;
 
-import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.UUID;
 
-public class Clothes implements Serializable {
+public class Clothes {
   // clothes_id, Auto-incremented, primary key, not null
   private int clothesId;
 

@@ -2,19 +2,18 @@ package controllers;
 
 import daos.ClothesDao;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.*;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import models.Cart;
 import models.Clothes;
 import models.OrderItem;
-import models.User;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,7 +80,6 @@ public class CartController extends HttpServlet {
       cart.setOrderItems(cart.getOrderItems());
     }
 
-    saveCartToCookie(request, response);
     session.setAttribute("message", "success-cart");
     response.sendRedirect("/");
   }
@@ -161,7 +159,6 @@ public class CartController extends HttpServlet {
       cart.setOrderItems(orderItems);
     }
 
-    saveCartToCookie(request, response);
     session.setAttribute("message", "success-cart");
     response.sendRedirect("/");
   }
@@ -188,40 +185,7 @@ public class CartController extends HttpServlet {
       session.setAttribute("cart", cart);
     }
 
-    saveCartToCookie(request, response);
     response.sendRedirect("/cart");
-  }
-
-  private void saveCartToCookie(HttpServletRequest request, HttpServletResponse response) {
-    // This method is used to save a copy of the current cart
-    // as a Cookie so that it can be retrieved later when the user logs back in
-    HttpSession session = request.getSession();
-
-    boolean hasCart = session.getAttribute("cart") != null;
-    boolean hasUserSession = session.getAttribute("user") != null;
-
-    if (hasCart && hasUserSession) {
-      // Get the current cart
-      Cart cart = (Cart) session.getAttribute("cart");
-      User user = (User) session.getAttribute("user");
-
-      // Serialize the cart so that it can be stored in a cookie
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      try (ObjectOutputStream oos = new ObjectOutputStream(bos)) {
-        oos.writeObject(cart);
-        oos.flush();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-      String serializedCart = Base64.getEncoder().encodeToString(bos.toByteArray());
-
-      // Save a copy of the current cart as a Cookie
-      // Each copy can be identified by the user's ID
-      Cookie cookie = new Cookie(String.valueOf(user.getUserId()), serializedCart);
-      cookie.setPath("/");
-      cookie.setMaxAge(60 * 60 * 24 * 30); // 30 days
-      response.addCookie(cookie);
-    }
   }
 
   @Override

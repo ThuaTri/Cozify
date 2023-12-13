@@ -27,6 +27,7 @@
             <tr>
               <th>ID</th>
               <th>Order time</th>
+              <th>Status</th>
               <th>Payment method</th>
               <th>First name</th>
               <th>Last name</th>
@@ -35,7 +36,6 @@
               <th>Email</th>
               <th>Total</th>
               <th>Note</th>
-              <th>Status</th>
               <th>Actions</th>
             </tr>
             </thead>
@@ -46,6 +46,7 @@
                 <td class="text-wrap">
                   <fmt:formatDate value="${o.orderTime}" pattern="HH:mm MM/dd/yyyy"/>
                 </td>
+                <td>${o.status}</td>
                 <td>${o.paymentMethod}</td>
                 <td>${o.firstName}</td>
                 <td>${o.lastName}</td>
@@ -54,17 +55,6 @@
                 <td>${o.email}</td>
                 <td>$<fmt:formatNumber type="number" pattern="#,###.##" value="${o.total}"/></td>
                 <td>${o.note}</td>
-                <c:choose>
-                  <c:when test="${o.status == 'delivered'}">
-                    <td class="text-success">${o.status}</td>
-                  </c:when>
-                  <c:when test="${o.status == 'cancelled'}">
-                    <td class="text-danger">${o.status}</td>
-                  </c:when>
-                  <c:otherwise>
-                    <td class="text-warning">${o.status}</td>
-                  </c:otherwise>
-                </c:choose>
                 <td>
                   <a href="${pageContext.request.contextPath}/dashboard/order/update?id=${o.orderId}"
                           class="btn btn-sm btn-success py-1 m-1">
