@@ -615,10 +615,9 @@ public class DashboardController extends HttpServlet {
 
         try {
           // Check if the user with the same email already exists
-          if (userDao.hasExistingEmail(email) || userDao.hasExistingUsername(username)) {
+          if (userDao.login(email, password) || userDao.hasExistingUsername(username)) {
             session.setAttribute("message", "error-register-existing-email");
-            response.sendRedirect("/dashboard/staff/add");
-            return;
+            response.sendRedirect("/staff/add");
           } else {
             User user = new User(username, password, email, roleId);
             if (!firstName.isBlank()) {

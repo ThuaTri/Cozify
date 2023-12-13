@@ -31,7 +31,10 @@
             <tr>
               <th>ID</th>
               <th>Category name</th>
+              <th>Item count</th>
+              <th>Order count</th>
               <th>State</th>
+              <th>Total revenue</th>
               <th>Actions</th>
             </tr>
             </thead>
@@ -40,7 +43,10 @@
               <tr>
                 <td>${r.categoryId}</td>
                 <td>${r.categoryName}</td>
+                <td>${r.itemCount}</td>
+                <td>${r.orderCount}</td>
                 <td>${r.isHidden ? "Disabled" : "Available"}</td>
+                <td>$<fmt:formatNumber type="number" pattern="#,###.##" value="${r.totalProfit}"/></td>
                 <td>
                   <a href="${pageContext.request.contextPath}/dashboard/category/update?id=${r.categoryId}"
                      class="btn btn-sm btn-success py-1 m-1">

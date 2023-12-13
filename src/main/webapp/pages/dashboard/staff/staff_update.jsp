@@ -22,7 +22,7 @@
       <div class="container-fluid">
         <div class="card">
           <div class="card-body">
-            <h5 class="card-title fw-semibold mb-4">Update Staff</h5>
+            <h5 class="card-title fw-semibold mb-4">Update User</h5>
             <form method="post" action="update" class="needs-validation" novalidate="">
               <p>Input fields marked with <span class="text-danger">*</span> are required</p>
               <div class="mb-3">

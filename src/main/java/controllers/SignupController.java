@@ -33,7 +33,7 @@ public class SignupController extends HttpServlet {
     UserDao userDao = new UserDao();
     try {
       // Check if the user with the same email already exists
-      if (userDao.hasExistingEmail(email) || userDao.hasExistingUsername(username)) {
+      if (userDao.login(email, password) || userDao.hasExistingUsername(username)) {
         session.setAttribute("message", "error-register-existing-email");
         response.sendRedirect("/signup");
       } else {
