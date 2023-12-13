@@ -114,6 +114,8 @@ public class ResetPasswordController extends HttpServlet {
             // Send message
             Transport.send(message);
           } catch (MessagingException e) {
+
+
             throw new RuntimeException(e);
           }
           System.out.println("OTP: " + otpvalue);

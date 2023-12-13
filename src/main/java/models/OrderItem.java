@@ -2,10 +2,11 @@ package models;
 
 import daos.ClothesDao;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class OrderItem {
+public class OrderItem implements Serializable {
   // order_item_id, Auto-incremented, primary key, not null
   private int orderItemId;
 

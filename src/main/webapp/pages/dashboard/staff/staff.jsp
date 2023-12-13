@@ -31,11 +31,9 @@
               <th>ID</th>
               <th>Role</th>
               <th>Username</th>
-              <th>Email</th>
               <th>First name</th>
               <th>Last name</th>
               <th>Phone number</th>
-              <th>Address</th>
               <th>Actions</th>
             </tr>
             </thead>
@@ -45,11 +43,9 @@
                 <td>${s.userId}</td>
                 <td>${s.role}</td>
                 <td>${s.username}</td>
-                <td>${s.email}</td>
                 <td>${s.firstName}</td>
                 <td>${s.lastName}</td>
                 <td>${s.phoneNumber}</td>
-                <td>${s.address}</td>
                 <td>
                   <a href="${pageContext.request.contextPath}/dashboard/staff/update?id=${s.userId}"
                      class="btn btn-sm btn-success py-1 m-1">

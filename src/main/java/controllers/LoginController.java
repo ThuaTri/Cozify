@@ -3,11 +3,10 @@ package controllers;
 import daos.UserDao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
+import models.Cart;
 import models.User;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.math.BigInteger;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -51,6 +50,7 @@ public class LoginController extends HttpServlet {
         cookie.setMaxAge(cookieAge);
         response.addCookie(cookie);
 
+        getCartFromCookie(request, response, user);
         redirectToPage(request, response, user.getRole());
       } else {
         session.setAttribute("message", "error-login-credentials");
@@ -78,6 +78,32 @@ public class LoginController extends HttpServlet {
     }
   }
 
+  private void getCartFromCookie(HttpServletRequest request, HttpServletResponse response, User user)
+      throws ServletException, IOException {
+    HttpSession session = request.getSession();
+    // Get the cart from the cookie
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+      for (Cookie cookie : cookies) {
+        if (cookie.getName().equals(String.valueOf(user.getUserId()))) {
+          String cookieValue = cookie.getValue();
+
+          // Decode the cookie value if necessary
+          byte[] decodedBytes = Base64.getDecoder().decode(cookieValue);
+
+          // Deserialize the cookie value into an object
+          Object cart = null;
+          try (ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(decodedBytes))) {
+            cart = ois.readObject();
+          } catch (ClassNotFoundException | IOException e) {
+            e.printStackTrace();
+          }
+
+          session.setAttribute("cart", cart);
+        }
+      }
+    }
+  }
 
   private void redirectToPage(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
