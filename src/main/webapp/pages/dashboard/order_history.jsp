@@ -7,6 +7,32 @@
     <jsp:param name="titleDescription" value="Dashboard"/>
   </jsp:include>
   <%@ include file="../../components/imports/dataTablesCss.jspf" %>
+  <style>
+    .status-pending {
+      color: #FFAE1F !important;
+      font-weight: bold;
+    }
+
+    .status-packaging {
+      color: #FFAE1F !important;
+      font-weight: bold;
+    }
+
+    .status-delivering {
+      color: #FFAE1F !important;
+      font-weight: bold;
+    }
+
+    .status-delivered {
+      color: #13DEB9 !important;
+      font-weight: bold;
+    }
+
+    .status-cancelled {
+      color: red !important;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
 <!--  Body Wrapper -->
@@ -43,7 +69,7 @@
                 <td class="text-wrap">
                   <fmt:formatDate value="${o.orderTime}" pattern="HH:mm MM/dd/yyyy"/>
                 </td>
-                <td>${o.status}</td>
+                <td class="status-${o.status}">${o.status}</td>
                 <td>${o.paymentMethod}</td>
                 <td>${o.address}</td>
                 <td>${o.phoneNumber}</td>
