@@ -156,6 +156,19 @@ public class UserDao extends GenericDao<User> {
     return resultSet.next();
   }
 
+  public boolean hasExistingEmail(String email) throws SQLException {
+    resultSet = null;
+    String sql = "select * from [user] where email = ?";
+    try {
+      preparedStatement = connection.prepareStatement(sql);
+      preparedStatement.setString(1, email);
+      resultSet = preparedStatement.executeQuery();
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return resultSet.next();
+  }
+
   public User getUserByEmail(String email) {
     String sql = "select * from [user] where email = ?";
     try {
