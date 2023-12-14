@@ -1,5 +1,6 @@
 package controllers;
 
+import com.microsoft.sqlserver.jdbc.StringUtils;
 import daos.ClothesDao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
@@ -22,14 +23,14 @@ public class CartController extends HttpServlet {
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response)
       throws ServletException, IOException {
-    String URI = request.getRequestURI();
-    if (URI.endsWith("/cart")) {
+    String path = request.getRequestURI();
+    if (path.endsWith("/cart")) {
       request.getRequestDispatcher("cart.jsp").forward(request, response);
-    } else if (URI.startsWith("/cart/add")) {
+    } else if (path.startsWith("/cart/add")) {
       addItemToCart(request, response);
-    } else if (URI.startsWith("/cart/update")) {
+    } else if (path.startsWith("/cart/update")) {
       updateItemInCart(request, response);
-    } else if (URI.startsWith("/cart/delete")) {
+    } else if (path.startsWith("/cart/delete")) {
       deleteItemFromCart(request, response);
     }
   }
@@ -38,9 +39,15 @@ public class CartController extends HttpServlet {
       throws ServletException, IOException {
     int clothesId = Integer.parseInt(request.getParameter("id"));
     int quantity = Integer.parseInt(request.getParameter("quantity"));
+    String size = request.getParameter("size") != null && !request.getParameter("size").isEmpty()
+        ? request.getParameter("size")
+        : "M";
 
     ClothesDao clothesDao = new ClothesDao();
     Clothes clothes = clothesDao.getById(clothesId);
+    clothes = clothesDao.getOtherClothesBySize(clothes, size);
+    // Update the clothesId as the clothes have been updated to new size
+    clothesId = clothes.getClothesId();
 
     // price * (100 - discount) / 100
     BigDecimal subtotal = clothes.getPrice()
@@ -63,7 +70,8 @@ public class CartController extends HttpServlet {
       // Check if the item already exists in the orderItems list
       boolean itemExists = false;
       for (OrderItem item : orderItems) {
-        if (item.getClothesId() == clothesId) {
+        if (item.getClothesId() == clothesId
+            && item.getClothes().getSize().equals(size)) {
           item.setQuantity(item.getQuantity() + quantity);
           item.setSubtotal(item.getSubtotal().add(subtotal));
           cart.setTotal(cart.getTotal().add(subtotal));
@@ -83,7 +91,7 @@ public class CartController extends HttpServlet {
 
     saveCartToCookie(request, response);
     session.setAttribute("message", "success-cart");
-    response.sendRedirect("/");
+    redirectToPreviousPage(request, response);
   }
 
   private void updateItemInCart(HttpServletRequest request, HttpServletResponse response)
@@ -163,7 +171,7 @@ public class CartController extends HttpServlet {
 
     saveCartToCookie(request, response);
     session.setAttribute("message", "success-cart");
-    response.sendRedirect("/");
+    redirectToPreviousPage(request, response);
   }
 
   private void deleteItemFromCart(HttpServletRequest request, HttpServletResponse response)
@@ -189,7 +197,7 @@ public class CartController extends HttpServlet {
     }
 
     saveCartToCookie(request, response);
-    response.sendRedirect("/cart");
+    redirectToPreviousPage(request, response);
   }
 
   private void saveCartToCookie(HttpServletRequest request, HttpServletResponse response) {
@@ -221,6 +229,19 @@ public class CartController extends HttpServlet {
       cookie.setPath("/");
       cookie.setMaxAge(60 * 60 * 24 * 30); // 30 days
       response.addCookie(cookie);
+    }
+  }
+
+  private void redirectToPreviousPage(HttpServletRequest request, HttpServletResponse response)
+      throws ServletException, IOException {
+    // Get the URL of the page before user triggered this servlet
+    HttpSession session = request.getSession();
+    String previousUrl = (String) session.getAttribute("previousUrl");
+    if (StringUtils.isEmpty(previousUrl)) {
+      response.sendRedirect("/");
+    } else {
+      response.sendRedirect(previousUrl);
+      session.removeAttribute("previousUrl");
     }
   }
 
