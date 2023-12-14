@@ -99,7 +99,9 @@
           <c:forEach items="${cart.orderItems}" var="item">
             <div class="d-flex justify-content-between mb-4">
               <h5 class="">
-                  ${item.clothes.clothesName} <c:if test="${!(item.clothes.size == 'null')}">- ${item.clothes.size}</c:if>
+                ${item.quantity} x
+                ${item.clothes.clothesName}
+                <c:if test="${!(item.clothes.size == 'null')}">- ${item.clothes.size}</c:if>
               </h5>
               <h5>$<fmt:formatNumber pattern="#,###.##">${item.subtotal}</fmt:formatNumber></h5>
             </div>
