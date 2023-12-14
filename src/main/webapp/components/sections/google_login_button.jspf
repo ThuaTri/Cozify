@@ -1,6 +1,6 @@
 <%@ page pageEncoding="UTF-8" %>
 <div id="g_id_onload"
-      data-client_id="878924649175-0ani46d77rplkoejpe176tjtvhgnuj6c.apps.googleusercontent.com"
+      data-client_id="897806128948-192ikm8brlgfp5fjip8c4ueaobhbpouo.apps.googleusercontent.com"
       data-context="signup"
       data-ux_mode="popup"
       data-callback="onSignIn"
