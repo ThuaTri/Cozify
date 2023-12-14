@@ -8,6 +8,8 @@
   </jsp:include>
 </head>
 <body>
+         <script src="https://accounts.google.com/gsi/client" async ></script>
+         <script async defer src="https://apis.google.com/js/api.js" ></script>
 <%@ include file="components/sections/store_components.jspf" %>
 
 <div class="row justify-content-center">
@@ -39,6 +41,7 @@
               Valid password is required and must have at least 8 characters.
             </div>
           </div>
+          <%@ include file="components/sections/google_login_button.jspf" %>
           <button type="submit" class="btn btn-primary rounded submit mt-3 px-3">Log in</button>
         </form>
         <p class="text-center mt-3">No account yet? <a href="${pageContext.request.contextPath}/signup">Sign up here.</a></p>
