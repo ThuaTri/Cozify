@@ -8,6 +8,10 @@
         <servlet-class>controllers.HomeController</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>DetailsController</servlet-name>
+        <servlet-class>controllers.DetailsController</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>CartController</servlet-name>
         <servlet-class>controllers.CartController</servlet-class>
     </servlet>
@@ -54,14 +58,6 @@
         <url-pattern>/</url-pattern>
     </filter-mapping>
     <filter-mapping>
-        <filter-name>ImageProcessingFilter</filter-name>
-        <url-pattern>/dashboard/clothes/add</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
-        <filter-name>ImageProcessingFilter</filter-name>
-        <url-pattern>/dashboard/clothes/update</url-pattern>
-    </filter-mapping>
-    <filter-mapping>
         <filter-name>AuthenticationFilter</filter-name>
         <url-pattern>/home</url-pattern>
     </filter-mapping>
@@ -72,6 +68,10 @@
     <filter-mapping>
         <filter-name>AuthenticationFilter</filter-name>
         <url-pattern>/cart/*</url-pattern>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>AuthenticationFilter</filter-name>
+        <url-pattern>/clothes/*</url-pattern>
     </filter-mapping>
     <filter-mapping>
         <filter-name>AuthenticationFilter</filter-name>
@@ -98,6 +98,10 @@
     <servlet-mapping>
         <servlet-name>HomeController</servlet-name>
         <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>DetailsController</servlet-name>
+        <url-pattern>/clothes/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>CartController</servlet-name>
