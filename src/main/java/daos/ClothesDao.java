@@ -29,6 +29,22 @@ public class ClothesDao extends GenericDao<Clothes> {
     return list;
   }
 
+  public List<Clothes> getRandom4() {
+    list = null;
+    String sql = "select top 4 * from clothes where stock_quantity > 0 and is_hidden = 0 and (size = 'M' or size = '8' or size is null) order by rand()";
+    try {
+      list = new ArrayList<>();
+      preparedStatement = connection.prepareStatement(sql);
+      resultSet = preparedStatement.executeQuery();
+      while (resultSet.next()) {
+        list.add(getClothesFromResultSetItem(resultSet));
+      }
+    } catch (SQLException e) {
+      handleSQLException(e);
+    }
+    return list;
+  }
+
   public List<Clothes> getAllAvailable() {
     list = null;
     String sql = "select * from clothes where stock_quantity > 0 and is_hidden = 0";
