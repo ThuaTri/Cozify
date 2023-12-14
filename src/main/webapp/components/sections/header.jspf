@@ -11,7 +11,7 @@
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span
         class="navbar-toggler-icon"></span></button>
     <div class="collapse navbar-collapse justify-content-end gap-2" id="navbarSupportedContent">
-      <a class="btn btn-outline-dark" href="cart">
+      <a class="btn btn-outline-dark" href="/cart">
         <i class="ph-fill ph-shopping-cart-simple me-1"></i>
         Cart
         <span class="badge bg-dark text-white ms-1 rounded-pill">${empty cart ? "0" : sessionScope.cart.getNumberOfItems()}</span>
