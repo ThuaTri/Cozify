@@ -7,32 +7,6 @@
     <jsp:param name="titleDescription" value="Dashboard"/>
   </jsp:include>
   <%@ include file="../../components/imports/dataTablesCss.jspf" %>
-  <style>
-    .status-pending {
-      color: #FFAE1F !important;
-      font-weight: bold;
-    }
-
-    .status-packaging {
-      color: #FFAE1F !important;
-      font-weight: bold;
-    }
-
-    .status-delivering {
-      color: #FFAE1F !important;
-      font-weight: bold;
-    }
-
-    .status-delivered {
-      color: #13DEB9 !important;
-      font-weight: bold;
-    }
-
-    .status-cancelled {
-      color: red !important;
-      font-weight: bold;
-    }
-  </style>
 </head>
 <body>
 <!--  Body Wrapper -->
@@ -53,12 +27,12 @@
             <tr>
               <th>Order ID</th>
               <th>Order time</th>
-              <th>Status</th>
               <th>Payment method</th>
               <th>Address</th>
               <th>Phone number</th>
               <th>Total</th>
               <th>Note</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
             </thead>
@@ -69,12 +43,22 @@
                 <td class="text-wrap">
                   <fmt:formatDate value="${o.orderTime}" pattern="HH:mm MM/dd/yyyy"/>
                 </td>
-                <td class="status-${o.status}">${o.status}</td>
                 <td>${o.paymentMethod}</td>
                 <td>${o.address}</td>
                 <td>${o.phoneNumber}</td>
                 <td>$<fmt:formatNumber type="number" pattern="#,###.##" value="${o.total}"/></td>
                 <td>${o.note}</td>
+                <c:choose>
+                  <c:when test="${o.status == 'delivered'}">
+                    <td class="text-success">${o.status}</td>
+                  </c:when>
+                  <c:when test="${o.status == 'cancelled'}">
+                    <td class="text-danger">${o.status}</td>
+                  </c:when>
+                  <c:otherwise>
+                    <td class="text-warning">${o.status}</td>
+                  </c:otherwise>
+                </c:choose>
                 <td>
                   <c:if test="${(o.status != 'cancelled' && o.status != 'delivering' && o.status != 'delivered')}">
                     <a href="${pageContext.request.contextPath}/dashboard/order/cancel?id=${o.orderId}"
