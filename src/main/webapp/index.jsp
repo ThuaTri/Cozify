@@ -77,9 +77,10 @@
                 </div>
               </div>
               <!-- Product actions-->
+              <a href="/clothes/${c.clothesId}" class="stretched-link"></a>
               <div class="card-footer p-4 pt-0 border-top-0 bg-transparent">
-                <div class="text-center"><a class="btn btn-outline-dark mt-auto"
-                                            href="cart/add?id=${c.clothesId}&quantity=1">Add to cart</a></div>
+                <div class="text-center"><a class="btn btn-outline-dark mt-auto position-relative z-2"
+                                            href="cart/add?id=${c.clothesId}&quantity=1&size=M">Add to cart</a></div>
               </div>
             </div>
           </div>
