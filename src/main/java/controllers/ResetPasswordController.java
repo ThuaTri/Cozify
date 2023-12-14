@@ -99,7 +99,7 @@ public class ResetPasswordController extends HttpServlet {
           props.put("mail.smtp.port", "465");
           Session mailSession = Session.getInstance(props, new Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
-              return new PasswordAuthentication("", ""); // Put your company's email and password here
+              return new PasswordAuthentication("tnttfpt1@gmail.com", "wymd dtth xuyn saey"); // Put your company's email and password here
             }
           });
 
