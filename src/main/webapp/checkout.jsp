@@ -81,7 +81,7 @@
         <c:if test="${voucher == null}">
           <form class="card p-2" method="get" action="/checkout" id="voucher-form">
             <div class="input-group">
-              <label for="voucherCode" class="form-label">Voucher/Coupon code <span class="text-danger">*</span></label>
+              <label for="voucherCode" class="form-label">Voucher/Coupon code</label>
               <div id="voucherCode" class="input-group">
                 <input type="text" maxlength="16" pattern="[a-zA-Z0-9]{16}" class="form-control" name="voucherCode"
                        placeholder="Voucher or coupon code" required="">
